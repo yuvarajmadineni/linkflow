@@ -8,9 +8,9 @@ export default function Home() {
 
   if (!isLoaded) return <div> Loading ...</div>;
 
-  if (organization?.id) {
-    return redirect("/dashboard");
-  }
+  // if (organization?.id) {
+  //   return redirect("/dashboard");
+  // }
 
   return (
     <main className="min-h-screen w-full flex items-center justify-center">

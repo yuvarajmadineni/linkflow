@@ -34,7 +34,7 @@ export default async function DashboardLayout({
       <div className="hidden md:flex flex-col w-64 mt-[72px] h-full fixed  inset-y-0 z-30 text-foreground bg-secondary py-4 px-4">
         <NavigationSidebar />
       </div>
-      <div className="md:pl-64"> {children}</div>
+      <div className="md:pl-64">{children}</div>
     </div>
   );
 }

@@ -9,7 +9,6 @@ export async function POST(request: Request) {
   const body = await request.json();
 
   const { organizationId, name } = body;
-  console.log("bbb", body);
 
   if (!organizationId)
     return new NextResponse("BAD REQUEST", {
@@ -17,7 +16,7 @@ export async function POST(request: Request) {
     });
 
   const org = await createOrganization(organizationId, name);
-  const profile = await createorUpdateUserProfile("admin", org.id);
+  const profile = await createorUpdateUserProfile(["admin"], org.id);
 
   return NextResponse.json({ organization: org, profile });
 }

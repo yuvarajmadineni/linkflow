@@ -32,7 +32,7 @@ export const getUserProfile = async () => {
 };
 
 export const createorUpdateUserProfile = async (
-  role: "admin" | "webuser" | "mobileuser",
+  role: Array<"admin" | "webuser" | "mobileuser">,
   organizationId?: string
 ) => {
   const userInfo = await currentUser();

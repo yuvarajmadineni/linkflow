@@ -9,11 +9,11 @@ export const organization = pgTable("organization", {
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
-  userId: text("user_id").unique(),
+  userId: text("user_id").notNull().unique(),
   fullName: text("full_name"),
-  email: text("email"),
+  email: text("email").notNull().unique(),
   imageUrl: text("image_url"),
-  role: text("role").$type<"admin" | "webuser" | "mobileuser">(),
+  role: text("role").notNull().$type<"admin" | "webuser" | "mobileuser">(),
   organizationId: uuid("organization_id").references(() => organization.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at"),

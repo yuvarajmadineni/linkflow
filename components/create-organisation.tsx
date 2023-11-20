@@ -45,6 +45,13 @@ const CreateOrganisation = () => {
     if (createOrganization) {
       const organisation = await createOrganization({ name: values.name });
       setActive({ organization: organisation });
+      fetch("/api/organization", {
+        method: "POST",
+        body: JSON.stringify({
+          organizationId: organisation.id,
+          name: organisation.name,
+        }),
+      });
       router.replace("/dashboard");
     }
   };

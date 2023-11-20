@@ -1,0 +1,27 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1700466856050,
+      "tag": "0000_dapper_alex_power",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1700471158381,
+      "tag": "0001_smart_khan",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1700483142873,
+      "tag": "0002_nifty_bloodstrike",
+      "breakpoints": true
+    }
+  ]
+}

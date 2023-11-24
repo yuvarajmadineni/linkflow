@@ -11,7 +11,7 @@ export function UserAvatar({
   name?: string | null;
 }) {
   return (
-    <Avatar className={cn("h-8 w-8 md:h-10 md:w-10")}>
+    <Avatar className={cn("h-8 w-8 md:h-10 md:w-10", className)}>
       <AvatarImage src={src} />
       <AvatarFallback>{name}</AvatarFallback>
     </Avatar>

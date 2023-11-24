@@ -1,7 +1,8 @@
-import { auth, currentUser, redirectToSignIn } from "@clerk/nextjs";
+import { auth, currentUser } from "@clerk/nextjs";
 import { db } from "./db";
 import { organization, users } from "./schema";
-import { eq } from "drizzle-orm";
+import { and, eq, inArray, like, sql } from "drizzle-orm";
+import { User } from "./utils";
 
 export const createOrganization = async (
   organizationId: string,
@@ -61,4 +62,30 @@ export const createorUpdateUserProfile = async (
   });
 
   return newProfile[0];
+};
+
+export const getAllUsers = async (
+  search: string,
+  role?: "admin" | "mobileuser" | "webuser"
+) => {
+  const { userId } = auth();
+
+  const user = await db.query.users.findFirst({
+    where: eq(users.userId, userId!),
+  });
+
+  const allUsers = await db
+    .select()
+    .from(users)
+    .where(
+      and(
+        eq(users.organizationId, user?.organizationId!),
+        like(users.fullName, `%${search}%`)
+      )
+    )
+    .then((payload) =>
+      payload.filter((user) => (role ? user.role?.includes(role) : true))
+    );
+
+  return allUsers;
 };

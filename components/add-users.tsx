@@ -80,6 +80,7 @@ export function AddUsers() {
           status: member?.status,
           phoneNumber: values.phoneNumber,
           name: values.name,
+          organizationId: organization?.id,
         }),
       });
 
@@ -102,9 +103,15 @@ export function AddUsers() {
   return (
     <Form {...form}>
       <form>
-        <Sheet onOpenChange={() => form.reset()} open={open}>
+        <Sheet
+          onOpenChange={() => {
+            form.reset();
+            setOpen((open) => !open);
+          }}
+          open={open}
+        >
           <SheetTrigger asChild>
-            <Button className="space-x-2" onClick={() => setOpen(true)}>
+            <Button className="space-x-2">
               <UserPlus className="h-5 w-5" />
               <span>Invite User</span>
             </Button>

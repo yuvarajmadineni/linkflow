@@ -26,19 +26,22 @@ const items = [
 export default function NavigationSidebar() {
   const pathname = usePathname();
   return (
-    <nav className="flex flex-col gap-6 text-base">
+    <nav className="flex flex-col gap-6 text-base h-full bg-secondary px-2">
       {items.map((item, index) => (
         <Link
           href={item.href}
           key={index}
           className={cn(
             navigationMenuTriggerStyle(),
-            "w-full  text-base font-medium text-gray-400 focus:bg-gray-700 bg-inherit  justify-start space-x-2 items-center",
-            item.href === pathname && "bg-gray-700 text-foreground"
+            "w-full text-base font-medium dark:text-gray-400 dark:focus:bg-gray-700 bg-inherit  justify-start focus:bg-zinc-400",
+            item.href === pathname &&
+              "dark:bg-gray-700 dark:text-foreground bg-zinc-400"
           )}
         >
-          <span>{item.icon}</span>
-          <span>{item.name}</span>
+          <div className="flex items-center gap-4 ">
+            <span>{item.icon}</span>
+            <span>{item.name}</span>
+          </div>
         </Link>
       ))}
     </nav>

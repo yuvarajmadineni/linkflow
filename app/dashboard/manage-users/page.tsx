@@ -34,7 +34,7 @@ export default async function ManageUsers({
       : undefined
   );
   return (
-    <div className="px-12 py-12 flex flex-col gap-4">
+    <div className="px-8 py-8 flex flex-col gap-4">
       <h3 className="text-sm md:text-3xl font-semibold">User Management</h3>
       <Tabs defaultValue="users" className="space-y-4">
         <TabsList className="space-x-4">

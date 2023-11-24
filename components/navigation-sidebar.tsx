@@ -33,8 +33,9 @@ export default function NavigationSidebar() {
           key={index}
           className={cn(
             navigationMenuTriggerStyle(),
-            "w-full text-base font-medium text-gray-400 focus:bg-gray-700 bg-inherit  justify-start",
-            item.href === pathname && "bg-gray-700 text-foreground"
+            "w-full text-base font-medium dark:text-gray-400 dark:focus:bg-gray-700 bg-inherit  justify-start focus:bg-zinc-400",
+            item.href === pathname &&
+              "dark:bg-gray-700 dark:text-foreground bg-zinc-400"
           )}
         >
           <div className="flex items-center gap-4 ">

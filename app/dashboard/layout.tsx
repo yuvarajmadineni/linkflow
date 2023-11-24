@@ -1,4 +1,5 @@
 import Logo from "@/components/logo";
+import { ModeToggle } from "@/components/mode-toggle";
 import NavigationSidebar from "@/components/navigation-sidebar";
 import { UserAvatar } from "@/components/user-avatar";
 import { getUserProfile } from "@/lib/organization";
@@ -26,6 +27,7 @@ export default async function DashboardLayout({
             </span>
           </div>
           <ChevronDownIcon className="text-muted-foreground h-5 w-5" />
+          <ModeToggle />
         </div>
       </div>
       <div className="hidden md:flex h-full text-foreground">

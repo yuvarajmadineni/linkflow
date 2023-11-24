@@ -23,7 +23,17 @@ export type User = typeof users.$inferSelect;
 export const columns: ColumnDef<User>[] = [
   {
     accessorKey: "fullName",
-    header: "Name",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Name
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
     cell: ({ row }) => {
       const name = row.getValue("fullName") as string;
       const email = row.getValue("email") as string;
@@ -86,10 +96,20 @@ export const columns: ColumnDef<User>[] = [
 
   {
     accessorKey: "createdAt",
-    header: "Created",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Created At
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
     cell: ({ row }) => {
       const date = row.getValue("createdAt") as Date;
-      return format(date, "yyyy-MM-dd");
+      return <span className="ml-4">{format(date, "yyyy-MM-dd")}</span>;
     },
   },
   {

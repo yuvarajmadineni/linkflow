@@ -21,13 +21,14 @@ export function SelectItems({ items }: SelectProps) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
+  const role = searchParams.get("role") || items[0].value;
   const handleChange = (role: string) => {
     const params = new URLSearchParams(searchParams);
     params.set("role", role);
-    router.replace(`${pathname}?${params.toString()}`);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
   return (
-    <Select defaultValue={items[0].value} onValueChange={handleChange}>
+    <Select defaultValue={role} onValueChange={handleChange}>
       <SelectTrigger className="w-[180px] border-gray-600 focus:border-background">
         <SelectValue />
       </SelectTrigger>

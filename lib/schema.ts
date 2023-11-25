@@ -1,5 +1,12 @@
 import { relations } from "drizzle-orm";
-import { pgTable, text, uuid, timestamp, varchar } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  uuid,
+  timestamp,
+  varchar,
+  primaryKey,
+} from "drizzle-orm/pg-core";
 
 export const organization = pgTable("organization", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -24,6 +31,32 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+export const groups = pgTable("groups", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull().unique(),
+  description: text("description"),
+});
+
+export const userToGroups = pgTable(
+  "user_to_groups",
+  {
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id),
+    groupId: uuid("group_id")
+      .notNull()
+      .references(() => groups.id),
+  }
+  // TODO  composite key creation is failing with this currently , check once the issue is resolved from the drizzle-orm
+  // (t) => ({
+  //   pk: primaryKey({ columns: [t.groupId, t.userId] }),
+  //   pkWithCustomName: primaryKey({
+  //     name: "custom_name",
+  //     columns: [t.groupId, t.userId],
+  //   }),
+  // })
+);
+
 export const userRelations = relations(users, ({ one }) => ({
   organization: one(organization, {
     fields: [users.organizationId],
@@ -33,4 +66,12 @@ export const userRelations = relations(users, ({ one }) => ({
 
 export const orgRelations = relations(organization, ({ many }) => ({
   users: many(users),
+}));
+
+export const usersGroupsRelations = relations(users, ({ many }) => ({
+  userToGroups: many(userToGroups),
+}));
+
+export const groupUsersRelations = relations(groups, ({ many }) => ({
+  userToGroups: many(userToGroups),
 }));

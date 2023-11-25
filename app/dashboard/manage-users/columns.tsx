@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ArrowUpDown, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getUserAvatar } from "@/lib/utils";
 
 export type User = typeof users.$inferSelect;
 
@@ -39,10 +40,7 @@ export const columns: ColumnDef<User>[] = [
       const email = row.getValue("email") as string;
       return (
         <div className="flex gap-4 items-center">
-          <UserAvatar
-            src={`http://www.gravatar.com/avatar/${md5(email)}.jpg?d=retro`}
-            className="md:h-6 md:w-6"
-          />
+          <UserAvatar src={getUserAvatar(email)} className="md:h-6 md:w-6" />
           <span>{name}</span>
         </div>
       );

@@ -1,26 +1,7 @@
-import { AddUsers } from "@/components/add-users";
-import { SearchUsers } from "@/components/search-users";
-import { SelectItems } from "@/components/select-items.";
+import { GroupList } from "@/components/group-list";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { UsersList } from "@/components/users-list";
 import { getAllUsers } from "@/lib/organization";
-import { SearchIcon } from "lucide-react";
-import { columns } from "./columns";
-import { DataTable } from "./data-table";
-
-const users = [
-  {
-    label: "All Users",
-    value: "allusers",
-  },
-  {
-    label: "Web Users",
-    value: "webuser",
-  },
-  {
-    label: "Mobile Users",
-    value: "mobileuser",
-  },
-];
 
 export default async function ManageUsers({
   searchParams,
@@ -44,19 +25,11 @@ export default async function ManageUsers({
           <TabsTrigger value="groups">Groups</TabsTrigger>
         </TabsList>
         <TabsContent value="users" className="flex flex-col gap-8">
-          <div className="flex gap-4">
-            <SelectItems items={users} />
-            <div className="relative flex justify-between w-full">
-              <div>
-                <SearchUsers />
-                <SearchIcon className="absolute left-4 top-3 h-4 w-4 text-muted-foreground" />
-              </div>
-              <AddUsers />
-            </div>
-          </div>
-          <DataTable data={data} columns={columns} />
+          <UsersList searchParams={searchParams} usersData={data} />
         </TabsContent>
-        <TabsContent value="groups">Change your password here.</TabsContent>
+        <TabsContent value="groups">
+          <GroupList users={data} />
+        </TabsContent>
       </Tabs>
     </div>
   );

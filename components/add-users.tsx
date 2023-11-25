@@ -118,7 +118,9 @@ export function AddUsers() {
           </SheetTrigger>
           <SheetContent>
             <SheetHeader>
-              <SheetTitle className="capitalize">Invite new user</SheetTitle>
+              <SheetTitle className="capitalize text-muted-foreground">
+                Invite new user
+              </SheetTitle>
               <SheetDescription>
                 Invite a new user to the organisation and click invite when
                 you&apos;re done.

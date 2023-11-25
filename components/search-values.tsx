@@ -1,8 +1,8 @@
 "use client";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Input } from "./ui/input";
+import { Input, InputProps } from "./ui/input";
 
-export function SearchUsers() {
+export function SearchValues(props?: InputProps) {
   const searchParams = useSearchParams();
   const { replace } = useRouter();
   const pathname = usePathname();
@@ -23,6 +23,7 @@ export function SearchUsers() {
       }}
       defaultValue={searchParams.get("query")?.toString()}
       placeholder="Search by user name"
+      {...props}
     />
   );
 }

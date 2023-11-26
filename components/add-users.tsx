@@ -27,6 +27,7 @@ import { useToast } from "./ui/use-toast";
 import { DropDownUserRoles } from "./user-roles";
 import React, { useState } from "react";
 import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
+import { useRouter } from "next/navigation";
 
 type Checked = DropdownMenuCheckboxItemProps["checked"];
 
@@ -34,6 +35,7 @@ export function AddUsers() {
   const [showMobileRole, setShowMobileRole] = React.useState<Checked>(true);
   const [showWebRole, setShowWebRole] = React.useState<Checked>(false);
   const [open, setOpen] = useState(false);
+  const { refresh } = useRouter();
   const formSchema = z.object({
     email: z.string().email("This is not a valid email"),
     name: z.string().min(1, "Name is required"),
@@ -86,6 +88,7 @@ export function AddUsers() {
 
       if (res.ok) {
         toast({ title: "Successfully invited the user" });
+        refresh();
       } else {
         toast({ title: "Inviting user failed" });
       }

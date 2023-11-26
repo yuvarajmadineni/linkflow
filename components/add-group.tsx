@@ -3,6 +3,7 @@ import {
   Sheet,
   SheetContent,
   SheetDescription,
+  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -25,8 +26,10 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { User, cn, getUserAvatar } from "@/lib/utils";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { SetStateAction, useState } from "react";
 import { UserAvatar } from "./user-avatar";
+import { useOrganization } from "@clerk/nextjs";
+import { toast } from "./ui/use-toast";
 
 export function AddGroup({ users }: { users: User[] }) {
   const schema = z.object({
@@ -41,11 +44,14 @@ export function AddGroup({ users }: { users: User[] }) {
     resolver: zodResolver(schema),
   });
 
-  const [addedUsers, setAddedUsers] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [addedUsers, setAddedUsers] = useState<User[]>([]);
+
+  const { organization } = useOrganization();
 
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const { replace } = useRouter();
+  const { replace, refresh } = useRouter();
 
   const searchTerm = searchParams.get("query");
 
@@ -65,6 +71,29 @@ export function AddGroup({ users }: { users: User[] }) {
     replace(`${pathname}?${params.toString()}`);
   };
 
+  const handleSumbit = async (values: z.infer<typeof schema>) => {
+    const { name, description } = values;
+
+    const res = await fetch("/api/organization/group", {
+      method: "POST",
+      body: JSON.stringify({
+        name,
+        description,
+        organizationId: organization?.id,
+        users: addedUsers,
+      }),
+    });
+
+    if (!res.ok) {
+      toast({ title: "Failed to create group" });
+      refresh();
+    } else {
+      toast({ title: "Successfully created the new group" });
+      setOpen(false);
+      clearSearchParams();
+    }
+  };
+
   return (
     <Form {...form}>
       <form>
@@ -72,7 +101,10 @@ export function AddGroup({ users }: { users: User[] }) {
           onOpenChange={() => {
             form.reset();
             clearSearchParams();
+            setAddedUsers([]);
+            setOpen((open) => !open);
           }}
+          open={open}
         >
           <SheetTrigger asChild>
             <Button className="space-x-2">
@@ -129,26 +161,41 @@ export function AddGroup({ users }: { users: User[] }) {
                 <Input
                   placeholder="Search existing users"
                   onChange={(e) => handleChange(e.target.value)}
+                  disabled={form.formState.isSubmitting}
                 />
               </FormItem>
               <div
                 className={cn("bg-muted  border border-r-8 ", {
                   "h-24 justify-center flex  items-center":
-                    users.length === 0 || !searchTerm,
+                    (users.length === 0 || !searchTerm) &&
+                    addedUsers.length === 0,
                 })}
               >
-                {users.length === 0 || !searchTerm ? (
+                {(users.length === 0 || !searchTerm) &&
+                addedUsers.length === 0 ? (
                   <UsersIcon />
-                ) : (
+                ) : searchTerm ? (
                   users.map((user) => (
                     <>
-                      <ShowUser user={user} />
+                      <ShowUser
+                        user={user}
+                        addedUsers={addedUsers}
+                        setAddedUsers={setAddedUsers}
+                      />
                     </>
+                  ))
+                ) : (
+                  addedUsers.map((user) => (
+                    <ShowUser
+                      user={user}
+                      addedUsers={addedUsers}
+                      setAddedUsers={setAddedUsers}
+                    />
                   ))
                 )}
               </div>
               <div className="flex items-center space-x-2 mb-2">
-                <Checkbox id="notify" />
+                <Checkbox id="notify" disabled={form.formState.isSubmitting} />
                 <label
                   htmlFor="notify"
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground"
@@ -156,10 +203,16 @@ export function AddGroup({ users }: { users: User[] }) {
                   Send a notification to users added
                 </label>
               </div>
-              <Button onClick={form.handleSubmit(() => {})}>
+            </div>
+            <SheetFooter>
+              <Button
+                onClick={form.handleSubmit(handleSumbit)}
+                className="w-full"
+                disabled={form.formState.isSubmitting}
+              >
                 Create Group
               </Button>
-            </div>
+            </SheetFooter>
           </SheetContent>
         </Sheet>
       </form>
@@ -167,10 +220,26 @@ export function AddGroup({ users }: { users: User[] }) {
   );
 }
 
-const ShowUser = ({ user }: { user: User }) => {
-  const [added, setAdded] = useState(false);
+const ShowUser = ({
+  user,
+  setAddedUsers,
+  addedUsers,
+}: {
+  user: User;
+  addedUsers: User[];
+  setAddedUsers: React.Dispatch<SetStateAction<User[]>>;
+}) => {
+  const checkUserAdded = () => {
+    return Boolean(addedUsers.find((u) => u.id === user.id));
+  };
+
+  const isAdded = checkUserAdded();
   const onAdd = () => {
-    setAdded((add) => !add);
+    setAddedUsers((users) => {
+      const checkUser = users.find((u) => u.id === user.id);
+      if (checkUser) return users.filter((u) => u.id !== user.id);
+      return users.concat(user);
+    });
   };
   return (
     <div className="flex gap-4 items-center py-4 px-2 justify-between w-full">
@@ -179,11 +248,11 @@ const ShowUser = ({ user }: { user: User }) => {
         <span>{user.fullName}</span>
       </div>
       <Button
-        className={cn("h-8", added && "bg-gray-200 dark:bg-gray-700")}
+        className={cn("h-8", isAdded && "bg-gray-200 dark:bg-gray-700")}
         onClick={onAdd}
-        variant={added ? "secondary" : "default"}
+        variant={isAdded ? "secondary" : "default"}
       >
-        {added ? "Remove" : "Add"}
+        {isAdded ? "Remove" : "Add"}
       </Button>
     </div>
   );

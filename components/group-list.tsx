@@ -2,11 +2,27 @@ import { ListIcon, SearchIcon } from "lucide-react";
 import { AddGroup } from "./add-group";
 import { SearchValues } from "./search-values";
 import { Button } from "./ui/button";
-import { User } from "@/lib/utils";
+import { Group, User, UserGroup } from "@/lib/utils";
+import { DataTable } from "@/app/dashboard/manage-users/data-table";
+import { columns } from "@/app/dashboard/manage-users/groupcolumns";
 
-export function GroupList({ users }: { users: User[] }) {
+export function GroupList({
+  users,
+  groupUsers,
+}: {
+  users: User[];
+  groupUsers: Array<{
+    groups: Group | null;
+    users: User[];
+    user_to_groups: UserGroup[];
+  }>;
+}) {
+  const formatGroupUsers = groupUsers.map((groupUser) => ({
+    ...groupUser.groups,
+    users: groupUser.users,
+  }));
   return (
-    <>
+    <div className=" flex flex-col gap-6">
       <div className="relative flex justify-between w-full">
         <div>
           <SearchValues placeholder="Search by group name" />
@@ -19,6 +35,10 @@ export function GroupList({ users }: { users: User[] }) {
           <AddGroup users={users} />
         </div>
       </div>
-    </>
+      <DataTable
+        columns={columns as Array<Group & { users: User[] }>}
+        data={formatGroupUsers}
+      />
+    </div>
   );
 }

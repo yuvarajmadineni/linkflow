@@ -18,10 +18,17 @@ import {
 import { ArrowUpDown, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getUserAvatar } from "@/lib/utils";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export type User = typeof users.$inferSelect;
 
 export const columns: ColumnDef<User>[] = [
+  {
+    id: "checkbox",
+    cell: () => {
+      return <Checkbox id="checkbox" />;
+    },
+  },
   {
     accessorKey: "fullName",
     header: ({ column }) => {

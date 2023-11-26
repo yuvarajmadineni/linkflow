@@ -1,8 +1,8 @@
 import { auth, currentUser } from "@clerk/nextjs";
 import { db } from "./db";
-import { organization, users } from "./schema";
+import { groups, organization, userToGroups, users } from "./schema";
 import { and, eq, inArray, like, sql } from "drizzle-orm";
-import { User } from "./utils";
+import { Group, User, UserGroup } from "./utils";
 
 export const createOrganization = async (
   organizationId: string,
@@ -88,4 +88,47 @@ export const getAllUsers = async (
     );
 
   return allUsers;
+};
+
+export const getAllGroups = async (search: string) => {
+  const { userId } = auth();
+
+  const user = await db.query.users.findFirst({
+    where: eq(users.userId, userId!),
+  });
+
+  return db
+    .select()
+    .from(groups)
+    .where(
+      and(
+        eq(groups.organizationId, user?.organizationId!),
+        like(groups.name, `%${search}%`)
+      )
+    )
+    .innerJoin(userToGroups, eq(groups.id, userToGroups.groupId))
+    .innerJoin(users, eq(users.id, userToGroups.userId))
+    .then((payload) => {
+      const mergeGroups: Array<{
+        groups: Group | null;
+        users: User[];
+        user_to_groups: UserGroup[];
+      }> = [];
+      payload.forEach((data) => {
+        const group = mergeGroups.find(
+          (g) => g.groups?.id === data?.groups?.id
+        );
+        if (group) {
+          group.user_to_groups = [...group.user_to_groups, data.user_to_groups];
+          group.users = [...group.users!, data.users];
+        } else {
+          mergeGroups.push({
+            groups: data.groups,
+            users: [data.users],
+            user_to_groups: [data.user_to_groups],
+          });
+        }
+      });
+      return mergeGroups;
+    });
 };

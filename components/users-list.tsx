@@ -4,7 +4,7 @@ import { SearchIcon } from "lucide-react";
 import { SearchValues } from "./search-values";
 import { SelectItems } from "./select-items.";
 import { getAllUsers } from "@/lib/organization";
-import { columns } from "@/app/dashboard/manage-users/columns";
+import { columns } from "@/app/dashboard/manage-users/usercolumns";
 import { User } from "@/lib/utils";
 
 const users = [

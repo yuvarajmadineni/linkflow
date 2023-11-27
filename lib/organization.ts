@@ -84,7 +84,11 @@ export const getAllUsers = async (
       )
     )
     .then((payload) =>
-      payload.filter((user) => (role ? user.role?.includes(role) : true))
+      payload.filter((user) =>
+        role
+          ? user.role?.includes(role) && !user.role.includes("admin")
+          : !user.role?.includes("admin")
+      )
     );
 
   return allUsers;
@@ -119,8 +123,10 @@ export const getAllGroups = async (search: string) => {
           (g) => g.groups?.id === data?.groups?.id
         );
         if (group) {
-          group.user_to_groups = [...group.user_to_groups, data.user_to_groups];
-          group.users = [...group.users!, data.users];
+          group.user_to_groups = group.user_to_groups.concat(
+            data.user_to_groups
+          );
+          group.users = group.users.concat(data.users);
         } else {
           mergeGroups.push({
             groups: data.groups,

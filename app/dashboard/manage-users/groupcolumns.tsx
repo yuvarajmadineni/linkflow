@@ -2,7 +2,9 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,12 +13,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { UserAvatar } from "@/components/user-avatar";
 import { Group, getUserAvatar } from "@/lib/utils";
 import { format } from "date-fns";
-import { ArrowUpDown, MoreVertical } from "lucide-react";
+import {
+  ArrowUpDown,
+  Edit,
+  MinusCircle,
+  MoreVertical,
+  PauseCircle,
+  Trash2,
+} from "lucide-react";
 import { User } from "./usercolumns";
-import { Checkbox } from "@/components/ui/checkbox";
-import { UserAvatar } from "@/components/user-avatar";
 
 export const columns: ColumnDef<Group & { users: User[] }>[] = [
   {
@@ -64,6 +72,36 @@ export const columns: ColumnDef<Group & { users: User[] }>[] = [
     },
   },
   {
+    accessorKey: "status",
+    cell: ({ row }) => {
+      const status = row.getValue("status") as string;
+      if (!status) return "";
+      let variant:
+        | "default"
+        | "destructive"
+        | "outline"
+        | "secondary"
+        | null
+        | undefined;
+      if (status === "active") {
+        variant = "default";
+      }
+
+      if (status === "inactive") {
+        variant = "secondary";
+      }
+
+      if (status === "suspended") {
+        variant = "destructive";
+      }
+      return (
+        <Badge variant={variant}>
+          {status.charAt(0).toUpperCase() + status.slice(1)}
+        </Badge>
+      );
+    },
+  },
+  {
     accessorKey: "createdAt",
     header: ({ column }) => {
       return (
@@ -96,7 +134,31 @@ export const columns: ColumnDef<Group & { users: User[] }>[] = [
           <DropdownMenuContent>
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Groups</DropdownMenuItem>
+            <DropdownMenuItem>
+              <div className="flex gap-2">
+                <Edit className="h-4 w-4" />
+                <span>Edit group</span>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <div className="flex gap-2">
+                <PauseCircle className="h-4 w-4" />
+                <span>Suspend group</span>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <div className="flex gap-2">
+                <MinusCircle className="h-4 w-4" />
+                <span>Deactivate group</span>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <div className="flex gap-2 text-red-500">
+                <Trash2 className="h-4 w-4" />
+                <span>Delete group</span>
+              </div>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

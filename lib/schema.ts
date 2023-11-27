@@ -26,9 +26,14 @@ export const users = pgTable("users", {
     .array()
     .default(["mobileuser"])
     .$type<Array<"admin" | "webuser" | "mobileuser">>(),
-  status: text("status").$type<"accepted | pending | revoked">(),
+  status:
+    text(
+      "status"
+    ).$type<"accepted | pending | revoked | suspended | deactivated | active">(),
   phoneNumber: varchar("phone_number", { length: 256 }),
-  organizationId: uuid("organization_id").references(() => organization.id),
+  organizationId: uuid("organization_id").references(() => organization.id, {
+    onDelete: "cascade",
+  }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -37,9 +42,12 @@ export const groups = pgTable("groups", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull().unique(),
   description: text("description"),
+  status: text("status")
+    .default("inactive")
+    .$type<"suspended | deactivated | inactive | active">(),
   organizationId: uuid("organization_id")
     .notNull()
-    .references(() => organization.id),
+    .references(() => organization.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -49,10 +57,10 @@ export const userToGroups = pgTable(
   {
     userId: uuid("user_id")
       .notNull()
-      .references(() => users.id),
+      .references(() => users.id, { onDelete: "cascade" }),
     groupId: uuid("group_id")
       .notNull()
-      .references(() => groups.id),
+      .references(() => groups.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   }

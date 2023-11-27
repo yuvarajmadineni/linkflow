@@ -2,11 +2,9 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 
-import { users } from "@/lib/schema";
-import { UserAvatar } from "@/components/user-avatar";
-import { md5 } from "js-md5";
-import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,10 +13,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ArrowUpDown, MoreVertical } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { UserAvatar } from "@/components/user-avatar";
+import { users } from "@/lib/schema";
 import { getUserAvatar } from "@/lib/utils";
-import { Checkbox } from "@/components/ui/checkbox";
+import { format } from "date-fns";
+import {
+  ArrowUpDown,
+  CircleSlash,
+  MinusCircle,
+  MoreVertical,
+  PauseCircle,
+  Trash2,
+} from "lucide-react";
+import { useModal } from "@/hooks/use-modal-store";
 
 export type User = typeof users.$inferSelect;
 
@@ -78,6 +85,7 @@ export const columns: ColumnDef<User>[] = [
         | "destructive"
         | "outline"
         | "secondary"
+        | "suspend"
         | null
         | undefined;
       if (status === "accepted") {
@@ -89,6 +97,14 @@ export const columns: ColumnDef<User>[] = [
       }
 
       if (status === "revoked") {
+        variant = "destructive";
+      }
+
+      if (status === "suspended") {
+        variant = "suspend";
+      }
+
+      if (status === "deactivated") {
         variant = "destructive";
       }
       return (
@@ -121,6 +137,7 @@ export const columns: ColumnDef<User>[] = [
     id: "actions",
     header: "More",
     cell: ({ row }) => {
+      const { onOpen } = useModal();
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -132,7 +149,33 @@ export const columns: ColumnDef<User>[] = [
           <DropdownMenuContent>
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Groups</DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                onOpen("suspenduser", { user: row.original });
+              }}
+            >
+              <div className="flex gap-2">
+                <PauseCircle className="h-4 w-4" />
+                <span>Suspend User</span>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => onOpen("deactivateuser", { user: row.original })}
+            >
+              <div className="flex gap-2">
+                <CircleSlash className="h-4 w-4" />
+                <span>Block User</span>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => onOpen("deleteuser", { user: row.original })}
+            >
+              <div className="flex gap-2 text-red-500">
+                <Trash2 className="h-4 w-4" />
+                <span>Delete User</span>
+              </div>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

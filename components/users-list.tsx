@@ -2,7 +2,7 @@ import { DataTable } from "@/app/dashboard/manage-users/data-table";
 import { AddUsers } from "./add-users";
 import { SearchIcon } from "lucide-react";
 import { SearchValues } from "./search-values";
-import { SelectItems } from "./select-items.";
+import { SelectItems } from "./select-items";
 import { getAllUsers } from "@/lib/organization";
 import { columns } from "@/app/dashboard/manage-users/usercolumns";
 import { User } from "@/lib/utils";

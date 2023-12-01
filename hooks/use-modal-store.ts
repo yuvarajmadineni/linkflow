@@ -1,10 +1,17 @@
 import { create } from "zustand";
-import { User } from "@/lib/utils";
+import { Group, User } from "@/lib/utils";
 
-export type ModalType = "suspenduser" | "deleteuser" | "deactivateuser";
+export type ModalType =
+  | "suspenduser"
+  | "deleteuser"
+  | "deactivateuser"
+  | "suspendgroup"
+  | "deletegroup"
+  | "deactivategroup";
 
 interface ModalData {
   user?: User;
+  group?: Group;
 }
 interface ModalStore {
   type: ModalType | null;

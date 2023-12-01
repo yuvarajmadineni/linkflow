@@ -113,6 +113,20 @@
       "when": 1701062654700,
       "tag": "0015_greedy_spyke",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "5",
+      "when": 1701412763598,
+      "tag": "0016_closed_wendigo",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "5",
+      "when": 1701412804742,
+      "tag": "0017_curious_lockheed",
+      "breakpoints": true
     }
   ]
 }

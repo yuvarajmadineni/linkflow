@@ -19,11 +19,11 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "./ui/form";
+} from "../ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useOrganization } from "@clerk/nextjs";
-import { useToast } from "./ui/use-toast";
+import { useToast } from "../ui/use-toast";
 import { DropDownUserRoles } from "./user-roles";
 import React, { useState } from "react";
 import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";

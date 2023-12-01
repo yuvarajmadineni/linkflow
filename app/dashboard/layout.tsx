@@ -1,7 +1,7 @@
 import Logo from "@/components/logo";
 import { ModeToggle } from "@/components/mode-toggle";
 import NavigationSidebar from "@/components/navigation-sidebar";
-import { UserAvatar } from "@/components/user-avatar";
+import { UserAvatar } from "@/components/user/user-avatar";
 import { getUserProfile } from "@/lib/organization";
 import { ChevronDownIcon } from "lucide-react";
 

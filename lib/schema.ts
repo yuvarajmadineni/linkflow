@@ -26,10 +26,7 @@ export const users = pgTable("users", {
     .array()
     .default(["mobileuser"])
     .$type<Array<"admin" | "webuser" | "mobileuser">>(),
-  status:
-    text(
-      "status"
-    ).$type<"accepted | pending | revoked | suspended | deactivated | active">(),
+  status: text("status"),
   phoneNumber: varchar("phone_number", { length: 256 }),
   organizationId: uuid("organization_id").references(() => organization.id, {
     onDelete: "cascade",
@@ -42,9 +39,7 @@ export const groups = pgTable("groups", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull().unique(),
   description: text("description"),
-  status: text("status")
-    .default("inactive")
-    .$type<"suspended | deactivated | inactive | active">(),
+  status: text("status").default("inactive"),
   organizationId: uuid("organization_id")
     .notNull()
     .references(() => organization.id, { onDelete: "cascade" }),

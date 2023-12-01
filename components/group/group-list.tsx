@@ -1,7 +1,7 @@
 import { ListIcon, SearchIcon } from "lucide-react";
 import { AddGroup } from "./add-group";
-import { SearchValues } from "./search-values";
-import { Button } from "./ui/button";
+import { SearchValues } from "../search-values";
+import { Button } from "../ui/button";
 import { Group, User, UserGroup } from "@/lib/utils";
 import { DataTable } from "@/app/dashboard/manage-users/data-table";
 import { columns } from "@/app/dashboard/manage-users/groupcolumns";
@@ -14,7 +14,6 @@ export function GroupList({
   groupUsers: Array<{
     groups: Group | null;
     users: User[];
-    user_to_groups: UserGroup[];
   }>;
 }) {
   const formatGroupUsers = groupUsers.map((groupUser) => ({

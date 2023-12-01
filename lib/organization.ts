@@ -110,28 +110,23 @@ export const getAllGroups = async (search: string) => {
         like(groups.name, `%${search}%`)
       )
     )
-    .innerJoin(userToGroups, eq(groups.id, userToGroups.groupId))
-    .innerJoin(users, eq(users.id, userToGroups.userId))
+    .leftJoin(userToGroups, eq(groups.id, userToGroups.groupId))
+    .leftJoin(users, eq(users.id, userToGroups.userId))
     .then((payload) => {
       const mergeGroups: Array<{
         groups: Group | null;
         users: User[];
-        user_to_groups: UserGroup[];
       }> = [];
       payload.forEach((data) => {
         const group = mergeGroups.find(
           (g) => g.groups?.id === data?.groups?.id
         );
-        if (group) {
-          group.user_to_groups = group.user_to_groups.concat(
-            data.user_to_groups
-          );
+        if (group && data.users) {
           group.users = group.users.concat(data.users);
         } else {
           mergeGroups.push({
             groups: data.groups,
-            users: [data.users],
-            user_to_groups: [data.user_to_groups],
+            users: data.users ? [data.users] : [],
           });
         }
       });

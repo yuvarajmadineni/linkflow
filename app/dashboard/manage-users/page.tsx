@@ -1,6 +1,6 @@
-import { GroupList } from "@/components/group-list";
+import { GroupList } from "@/components/group/group-list";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { UsersList } from "@/components/users-list";
+import { UsersList } from "@/components/user/users-list";
 import { getAllGroups, getAllUsers } from "@/lib/organization";
 
 export default async function ManageUsers({

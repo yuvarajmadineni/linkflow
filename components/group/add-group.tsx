@@ -18,18 +18,18 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "./ui/form";
-import { Input } from "./ui/input";
-import { Textarea } from "./ui/textarea";
-import { Checkbox } from "./ui/checkbox";
+} from "../ui/form";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
+import { Checkbox } from "../ui/checkbox";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { User, cn, getUserAvatar } from "@/lib/utils";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { SetStateAction, useState } from "react";
-import { UserAvatar } from "./user-avatar";
+import { UserAvatar } from "../user/user-avatar";
 import { useOrganization } from "@clerk/nextjs";
-import { toast } from "./ui/use-toast";
+import { toast } from "../ui/use-toast";
 
 export function AddGroup({ users }: { users: User[] }) {
   const schema = z.object({
@@ -220,7 +220,7 @@ export function AddGroup({ users }: { users: User[] }) {
   );
 }
 
-const ShowUser = ({
+export const ShowUser = ({
   user,
   setAddedUsers,
   addedUsers,

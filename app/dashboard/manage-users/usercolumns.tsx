@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { UserAvatar } from "@/components/user-avatar";
+import { UserAvatar } from "@/components/user/user-avatar";
 import { users } from "@/lib/schema";
 import { getUserAvatar } from "@/lib/utils";
 import { format } from "date-fns";

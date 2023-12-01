@@ -13,7 +13,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { UserAvatar } from "@/components/user-avatar";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { UserAvatar } from "@/components/user/user-avatar";
+import { useModal } from "@/hooks/use-modal-store";
 import { Group, getUserAvatar } from "@/lib/utils";
 import { format } from "date-fns";
 import {
@@ -25,6 +27,8 @@ import {
   Trash2,
 } from "lucide-react";
 import { User } from "./usercolumns";
+import { EditGroup } from "@/components/group/edit-group";
+import { useState } from "react";
 
 export const columns: ColumnDef<Group & { users: User[] }>[] = [
   {
@@ -57,7 +61,7 @@ export const columns: ColumnDef<Group & { users: User[] }>[] = [
         <div className="flex">
           {members?.slice(0, 4).map((mem) => (
             <UserAvatar
-              src={getUserAvatar(mem.email)}
+              src={mem.imageUrl || getUserAvatar(mem.email)}
               className="md:h-5 md:w-5 md:-mr-2"
             />
           ))}
@@ -73,6 +77,7 @@ export const columns: ColumnDef<Group & { users: User[] }>[] = [
   },
   {
     accessorKey: "status",
+    header: "Status",
     cell: ({ row }) => {
       const status = row.getValue("status") as string;
       if (!status) return "";
@@ -81,6 +86,7 @@ export const columns: ColumnDef<Group & { users: User[] }>[] = [
         | "destructive"
         | "outline"
         | "secondary"
+        | "suspend"
         | null
         | undefined;
       if (status === "active") {
@@ -92,6 +98,10 @@ export const columns: ColumnDef<Group & { users: User[] }>[] = [
       }
 
       if (status === "suspended") {
+        variant = "suspend";
+      }
+
+      if (status === "deactivated") {
         variant = "destructive";
       }
       return (
@@ -122,45 +132,74 @@ export const columns: ColumnDef<Group & { users: User[] }>[] = [
   {
     id: "actions",
     header: "More",
-    cell: () => {
+    cell: ({ row }) => {
+      const { onOpen } = useModal();
+      const [open, setOpen] = useState(false);
+      const [addedUsers, setAddedUsers] = useState<User[]>([]);
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost">
-              <span className="sr-only">Open menu</span>
-              <MoreVertical />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <div className="flex gap-2">
-                <Edit className="h-4 w-4" />
-                <span>Edit group</span>
-              </div>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <div className="flex gap-2">
-                <PauseCircle className="h-4 w-4" />
-                <span>Suspend group</span>
-              </div>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <div className="flex gap-2">
-                <MinusCircle className="h-4 w-4" />
-                <span>Deactivate group</span>
-              </div>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <div className="flex gap-2 text-red-500">
-                <Trash2 className="h-4 w-4" />
-                <span>Delete group</span>
-              </div>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Sheet
+          open={open}
+          onOpenChange={() => {
+            setOpen((open) => !open);
+            setAddedUsers([]);
+          }}
+        >
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost">
+                <span className="sr-only">Open menu</span>
+                <MoreVertical />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <SheetTrigger>
+                <DropdownMenuItem>
+                  <div className="flex gap-2">
+                    <Edit className="h-4 w-4" />
+                    <span>Edit group</span>
+                  </div>
+                </DropdownMenuItem>
+              </SheetTrigger>
+              <SheetContent>Hii</SheetContent>
+              <DropdownMenuItem
+                onClick={() => onOpen("suspendgroup", { group: row.original })}
+              >
+                <div className="flex gap-2">
+                  <PauseCircle className="h-4 w-4" />
+                  <span>Suspend group</span>
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() =>
+                  onOpen("deactivategroup", { group: row.original })
+                }
+              >
+                <div className="flex gap-2">
+                  <MinusCircle className="h-4 w-4" />
+                  <span>Deactivate group</span>
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => onOpen("deletegroup", { group: row.original })}
+              >
+                <div className="flex gap-2 text-red-500">
+                  <Trash2 className="h-4 w-4" />
+                  <span>Delete group</span>
+                </div>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <EditGroup
+            groupId={row.original.id}
+            setOpen={setOpen}
+            setAddedUsers={setAddedUsers}
+            addedUsers={addedUsers}
+            open={open}
+          />
+        </Sheet>
       );
     },
   },

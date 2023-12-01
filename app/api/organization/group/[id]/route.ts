@@ -69,7 +69,7 @@ export async function PATCH(
   } = {
     ...(name ? { name } : {}),
     ...(description ? { description } : {}),
-    ...(statusValue ? { statusValue } : {}),
+    ...(statusValue ? { status: statusValue } : {}),
   };
 
   const [group] = await db

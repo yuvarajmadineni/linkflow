@@ -3,6 +3,7 @@ import { ModeToggle } from "@/components/mode-toggle";
 import NavigationSidebar from "@/components/navigation-sidebar";
 import { UserAvatar } from "@/components/user/user-avatar";
 import { getUserProfile } from "@/lib/organization";
+import { UserButton } from "@clerk/nextjs";
 import { ChevronDownIcon } from "lucide-react";
 
 export default async function DashboardLayout({
@@ -19,7 +20,8 @@ export default async function DashboardLayout({
           <h1>Linkflow</h1>
         </div>
         <div className="flex gap-3 px-4 items-center">
-          <UserAvatar src={user?.imageUrl as string} name={user?.fullName} />
+          <UserButton />
+
           <div>
             <h2 className="text-base font-semibold">{user?.fullName}</h2>
             <span className="text-sm text-muted-foreground font-normal">

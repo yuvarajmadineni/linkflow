@@ -6,7 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Workflow } from "@/lib/utils";
+import { Workflow, cn } from "@/lib/utils";
 import { Badge } from "../ui/badge";
 import { format } from "date-fns";
 import { Copy, MoreVertical, Trash, Trash2 } from "lucide-react";
@@ -40,11 +40,17 @@ export function WorkflowCard({ workflow }: { workflow: Workflow }) {
   }
 
   return (
-    <Card className="w-72 bg-secondary">
+    <Card className="max-w-xl bg-secondary">
       <CardContent>
         <CardHeader className="flex flex-row justify-between items-center px-0">
           <CardTitle className="text-base">{name}</CardTitle>
-          <Badge variant={variant}>
+          <Badge
+            variant={variant}
+            className={cn(
+              status === "archived" &&
+                "border-transparent bg-primary-foreground hover:bg-primary-foreground/80"
+            )}
+          >
             {status.at(0)?.toUpperCase() + status.slice(1)}
           </Badge>
         </CardHeader>
@@ -64,7 +70,10 @@ export function WorkflowCard({ workflow }: { workflow: Workflow }) {
                 <Copy className="h-4 w-4" />
                 <span className="text-sm">Duplicate</span>
               </DropdownMenuItem>
-              <DropdownMenuItem className="gap-2 flex">
+              <DropdownMenuItem
+                className="gap-2 flex"
+                onClick={() => onOpen("archiveworfklow", { workflow })}
+              >
                 <Trash className="h-4 w-4" />
                 <span className="text-sm">Archive</span>
               </DropdownMenuItem>

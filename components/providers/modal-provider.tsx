@@ -8,6 +8,7 @@ import { DeleteGroupModal } from "@/components/modals/delete-group-modal";
 import { DeactivateGroupModal } from "@/components/modals/deactivate-group-modal";
 import { CreateWorkflowModal } from "@/components/modals/create-workflow-modal";
 import { DeleteWorkflowModal } from "@/components/modals/delete-workflow-modal";
+import { ArchiveWorkflowModal } from "@/components/modals/archive-workflow-modal";
 
 export function ModalProvider() {
   const [isMounted, setIsMounted] = useState(false);
@@ -28,6 +29,7 @@ export function ModalProvider() {
       <DeactivateGroupModal />
       <CreateWorkflowModal />
       <DeleteWorkflowModal />
+      <ArchiveWorkflowModal />
     </>
   );
 }

@@ -9,7 +9,9 @@ export type ModalType =
   | "deletegroup"
   | "deactivategroup"
   | "createworkflow"
-  | "deleteworkflow";
+  | "deleteworkflow"
+  | "archiveworfklow"
+  | "createtaskpipeline";
 
 interface ModalData {
   user?: User;

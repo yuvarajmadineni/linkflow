@@ -22,6 +22,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { useModal } from "@/hooks/use-modal-store";
 import { toast } from "../ui/use-toast";
+import { useRouter } from "next/navigation";
 
 export function CreateWorkflowModal() {
   const schema = z.object({
@@ -35,6 +36,7 @@ export function CreateWorkflowModal() {
 
   const { isOpen, onClose, type } = useModal();
   const isModalOpen = type === "createworkflow" && isOpen;
+  const { refresh } = useRouter();
 
   const onSubmit = async (values: z.infer<typeof schema>) => {
     const { name, instructions } = values;
@@ -48,8 +50,9 @@ export function CreateWorkflowModal() {
       toast({ title: "Failed to create workflow" });
     } else {
       toast({ title: "Succesfully created the workflow" });
-      handleClose();
     }
+    refresh();
+    handleClose();
   };
 
   const handleClose = () => {

@@ -6,6 +6,7 @@ import {
   timestamp,
   varchar,
   primaryKey,
+  pgEnum,
 } from "drizzle-orm/pg-core";
 
 export const organization = pgTable("organization", {
@@ -69,6 +70,24 @@ export const userToGroups = pgTable(
   // })
 );
 
+export const workflowStatusEnum = pgEnum("status", [
+  "published",
+  "archived",
+  "draft",
+]);
+
+export const workflows = pgTable("workflows", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  instructions: text("instructions").notNull(),
+  organizationId: uuid("organization_id")
+    .notNull()
+    .references(() => organization.id, { onDelete: "cascade" }),
+  status: workflowStatusEnum("status").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 export const userRelations = relations(users, ({ one }) => ({
   organization: one(organization, {
     fields: [users.organizationId],
@@ -97,4 +116,15 @@ export const groupOrgRelations = relations(groups, ({ one }) => ({
 
 export const orgGroupRelations = relations(organization, ({ many }) => ({
   groups: many(groups),
+}));
+
+export const workflowOrgRelations = relations(workflows, ({ one }) => ({
+  organization: one(organization, {
+    fields: [workflows.organizationId],
+    references: [organization.id],
+  }),
+}));
+
+export const orgWorkflowRelations = relations(organization, ({ many }) => ({
+  workflows: many(workflows),
 }));

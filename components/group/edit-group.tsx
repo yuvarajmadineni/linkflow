@@ -15,7 +15,7 @@ import { useRouter } from "next/navigation";
 import { SetStateAction, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Checkbox } from "../ui/checkbox";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -23,10 +23,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../ui/form";
-import { Input } from "../ui/input";
-import { Textarea } from "../ui/textarea";
-import { toast } from "../ui/use-toast";
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/components/ui/use-toast";
 import { ShowUser } from "./add-group";
 import { useGroup } from "@/hooks/use-group";
 import { useQueryClient } from "@tanstack/react-query";

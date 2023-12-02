@@ -12,24 +12,24 @@ import { useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 
-export function DeleteGroupModal() {
+export function DeleteWorkflowModal() {
   const { isOpen, type, onClose, data } = useModal();
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const { group } = data;
+  const { workflow } = data;
 
-  const isModalOpen = type === "deletegroup" && isOpen;
+  const isModalOpen = type === "deleteworkflow" && isOpen;
 
   const handleConfirm = async () => {
     setIsLoading(true);
-    const res = await fetch(`/api/organization/group/${group?.id}`, {
+    const res = await fetch(`/api/organization/workflow/${workflow?.id}`, {
       method: "DELETE",
     });
     setIsLoading(false);
 
     if (res.ok) {
-      toast({ title: "Group deleted succesfully" });
+      toast({ title: "Workflow deleted succesfully" });
     } else {
       toast({ title: "Something went wrong, please try again!" });
     }
@@ -41,10 +41,10 @@ export function DeleteGroupModal() {
     <Dialog open={isModalOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader className="space-y-4">
-          <DialogTitle className="text-center">Delete Group</DialogTitle>
+          <DialogTitle className="text-center">Delete Workflow</DialogTitle>
           <DialogDescription className="text-center">
             Are you sure you want to do this ? <br />
-            The group {group?.name} will be deleted permanently
+            The workflow {workflow?.name} will be deleted permanently
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>

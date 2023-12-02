@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { toast } from "../ui/use-toast";
+import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 
 export function SuspendGroupModal() {
@@ -47,21 +47,22 @@ export function SuspendGroupModal() {
             Are you sure you want to do this ? <br />
             The group {group?.name} will be suspended permanently
           </DialogDescription>
-          <DialogFooter>
-            <div className="flex justify-between w-full">
-              <Button variant="ghost" onClick={onClose} disabled={isLoading}>
-                Cancel
-              </Button>
-              <Button
-                variant="default"
-                onClick={handleConfirm}
-                disabled={isLoading}
-              >
-                Confirm
-              </Button>
-            </div>
-          </DialogFooter>
         </DialogHeader>
+
+        <DialogFooter>
+          <div className="flex justify-between w-full">
+            <Button variant="ghost" onClick={onClose} disabled={isLoading}>
+              Cancel
+            </Button>
+            <Button
+              variant="default"
+              onClick={handleConfirm}
+              disabled={isLoading}
+            >
+              Confirm
+            </Button>
+          </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Group, User } from "@/lib/utils";
+import { Group, User, Workflow } from "@/lib/utils";
 
 export type ModalType =
   | "suspenduser"
@@ -7,11 +7,14 @@ export type ModalType =
   | "deactivateuser"
   | "suspendgroup"
   | "deletegroup"
-  | "deactivategroup";
+  | "deactivategroup"
+  | "createworkflow"
+  | "deleteworkflow";
 
 interface ModalData {
   user?: User;
   group?: Group;
+  workflow?: Workflow;
 }
 interface ModalStore {
   type: ModalType | null;

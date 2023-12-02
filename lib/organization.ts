@@ -1,6 +1,6 @@
 import { auth, currentUser } from "@clerk/nextjs";
 import { db } from "./db";
-import { groups, organization, userToGroups, users } from "./schema";
+import { groups, organization, userToGroups, users, workflows } from "./schema";
 import { and, eq, inArray, like, sql } from "drizzle-orm";
 import { Group, User, UserGroup } from "./utils";
 
@@ -132,4 +132,15 @@ export const getAllGroups = async (search: string) => {
       });
       return mergeGroups;
     });
+};
+
+export const getWorkflows = async () => {
+  const user = await getUserProfile();
+
+  const allWorkflows = await db
+    .select()
+    .from(workflows)
+    .where(eq(workflows.organizationId, user?.organizationId!));
+
+  return allWorkflows;
 };

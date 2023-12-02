@@ -26,7 +26,7 @@ const items = [
 export default function NavigationSidebar() {
   const pathname = usePathname();
   return (
-    <nav className="flex flex-col gap-6 text-base h-full bg-secondary px-2">
+    <nav className="flex flex-col gap-2 text-base h-full bg-secondary px-2">
       {items.map((item, index) => (
         <Link
           href={item.href}

@@ -1,11 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
-import { SuspendUserModal } from "../modals/suspend-user-modal";
-import { BlockUserModal } from "../modals/block-user-modal";
-import { DeleteUserModal } from "../modals/delete-user-modal";
-import { SuspendGroupModal } from "../modals/suspend-group-modal";
-import { DeleteGroupModal } from "../modals/delete-group-modal";
-import { DeactivateGroupModal } from "../modals/deactivate-group-modal";
+import { SuspendUserModal } from "@/components/modals/suspend-user-modal";
+import { BlockUserModal } from "@/components/modals/block-user-modal";
+import { DeleteUserModal } from "@/components/modals/delete-user-modal";
+import { SuspendGroupModal } from "@/components/modals/suspend-group-modal";
+import { DeleteGroupModal } from "@/components/modals/delete-group-modal";
+import { DeactivateGroupModal } from "@/components/modals/deactivate-group-modal";
+import { CreateWorkflowModal } from "@/components/modals/create-workflow-modal";
+import { DeleteWorkflowModal } from "@/components/modals/delete-workflow-modal";
 
 export function ModalProvider() {
   const [isMounted, setIsMounted] = useState(false);
@@ -24,6 +26,8 @@ export function ModalProvider() {
       <SuspendGroupModal />
       <DeleteGroupModal />
       <DeactivateGroupModal />
+      <CreateWorkflowModal />
+      <DeleteWorkflowModal />
     </>
   );
 }

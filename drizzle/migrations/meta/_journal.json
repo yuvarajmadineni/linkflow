@@ -127,6 +127,62 @@
       "when": 1701412804742,
       "tag": "0017_curious_lockheed",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "5",
+      "when": 1701499277523,
+      "tag": "0018_faulty_sir_ram",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "5",
+      "when": 1701500711616,
+      "tag": "0020_sticky_natasha_romanoff",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "5",
+      "when": 1701501190584,
+      "tag": "0023_cold_jack_murdock",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "5",
+      "when": 1701501089321,
+      "tag": "0022_sparkling_skullbuster",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "5",
+      "when": 1701501418518,
+      "tag": "0023_petite_chimera",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1701503211246,
+      "tag": "0024_good_kylun",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "5",
+      "when": 1701503219742,
+      "tag": "0025_gorgeous_madrox",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "5",
+      "when": 1701504189737,
+      "tag": "0026_military_norrin_radd",
+      "breakpoints": true
     }
   ]
 }

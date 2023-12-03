@@ -144,3 +144,12 @@ export const getWorkflows = async () => {
 
   return allWorkflows;
 };
+
+export const getWorkflowById = async (workflowId: string) => {
+  const [workflow] = await db
+    .select()
+    .from(workflows)
+    .where(eq(workflows.id, workflowId));
+
+  return workflow;
+};

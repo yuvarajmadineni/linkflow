@@ -15,3 +15,24 @@ export type Workflow = typeof workflows.$inferSelect;
 export function getUserAvatar(email: string) {
   return `http://www.gravatar.com/avatar/${md5(email)}.jpg?d=retro`;
 }
+
+export const getInitialWorkflow = () => {
+  const initialNodes = [
+    {
+      id: "1",
+      position: { x: 0, y: 0 },
+      data: { label: "Start" },
+      type: "startNode",
+    },
+    {
+      id: "2",
+      position: { x: 0, y: 100 },
+      data: { label: "Placeholder" },
+      type: "placeholderNode",
+    },
+  ];
+
+  const initialEdges = [{ id: "e-1", source: "1", target: "2" }];
+
+  return { initialNodes, initialEdges };
+};

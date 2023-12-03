@@ -7,7 +7,10 @@ import {
   varchar,
   primaryKey,
   pgEnum,
+  jsonb,
 } from "drizzle-orm/pg-core";
+import { Edge, Node } from "reactflow";
+import { getInitialWorkflow } from "./utils";
 
 export const organization = pgTable("organization", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -59,15 +62,10 @@ export const userToGroups = pgTable(
       .references(() => groups.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
-  }
-  // TODO  composite key creation is failing with this currently , check once the issue is resolved from the drizzle-orm
-  // (t) => ({
-  //   pk: primaryKey({ columns: [t.groupId, t.userId] }),
-  //   pkWithCustomName: primaryKey({
-  //     name: "custom_name",
-  //     columns: [t.groupId, t.userId],
-  //   }),
-  // })
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.groupId, t.userId] }),
+  })
 );
 
 export const workflowStatusEnum = pgEnum("status", [
@@ -75,6 +73,13 @@ export const workflowStatusEnum = pgEnum("status", [
   "archived",
   "draft",
 ]);
+
+type WorkflowBuildConfig = {
+  nodes: Node[];
+  edges: Edge[];
+};
+
+const { initialNodes, initialEdges } = getInitialWorkflow();
 
 export const workflows = pgTable("workflows", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -86,6 +91,9 @@ export const workflows = pgTable("workflows", {
   status: workflowStatusEnum("status").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  buildConfig: jsonb("build_config")
+    .$type<WorkflowBuildConfig>()
+    .default({ nodes: initialNodes, edges: initialEdges }),
 });
 
 export const userRelations = relations(users, ({ one }) => ({

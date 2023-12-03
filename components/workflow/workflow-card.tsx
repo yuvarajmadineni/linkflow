@@ -9,7 +9,7 @@ import {
 import { Workflow, cn } from "@/lib/utils";
 import { Badge } from "../ui/badge";
 import { format } from "date-fns";
-import { Copy, MoreVertical, Trash, Trash2 } from "lucide-react";
+import { Copy, MoreVertical, Navigation, Trash, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -19,8 +19,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useModal } from "@/hooks/use-modal-store";
+import { useRouter } from "next/navigation";
 
 export function WorkflowCard({ workflow }: { workflow: Workflow }) {
+  const router = useRouter();
   const { onOpen } = useModal();
   const { name, status, createdAt } = workflow;
   const date = format(createdAt, "MMMM d, yyyy");
@@ -66,6 +68,14 @@ export function WorkflowCard({ workflow }: { workflow: Workflow }) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
+              <DropdownMenuItem
+                className="gap-2 flex"
+                onClick={() => router.push(`/workflow/${workflow.id}`)}
+              >
+                <Navigation className="h-4 w-4" />
+                <span className="text-sm">Go to workflow</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem className="gap-2 flex">
                 <Copy className="h-4 w-4" />
                 <span className="text-sm">Duplicate</span>

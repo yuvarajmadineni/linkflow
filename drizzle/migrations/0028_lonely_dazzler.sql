@@ -1,0 +1,1 @@
+ALTER TABLE "workflows" ADD COLUMN "build_config" jsonb DEFAULT '{"nodes":[{"id":"1","position":{"x":0,"y":0},"data":{"label":"Start"},"type":"startNode"},{"id":"2","position":{"x":0,"y":100},"data":{"label":"Placeholder"},"type":"placeholderNode"}],"edges":[{"id":"e-1","source":"1","target":"2"}]}'::jsonb;

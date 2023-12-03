@@ -1,0 +1,1 @@
+ALTER TABLE "user_to_groups" DROP CONSTRAINT "user_to_groups_group_id_user_id_pk";

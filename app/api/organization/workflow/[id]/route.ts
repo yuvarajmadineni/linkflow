@@ -1,6 +1,8 @@
 import { db } from "@/lib/db";
 import { workflows } from "@/lib/schema";
+import { randomUUID } from "crypto";
 import { eq, param } from "drizzle-orm";
+import { Edge, Node } from "reactflow";
 import { z } from "zod";
 
 export async function PATCH(
@@ -9,18 +11,74 @@ export async function PATCH(
 ) {
   const body = await req.json();
 
-  const { status } = body;
+  const { status, nodeType, parentId } = body;
 
   const statusSchema = z.enum(["published", "draft", "archived"]);
 
-  const verifiedStatus = statusSchema.parse(status);
+  const typeSchema = z.enum(["pageNode", "branchNode"]);
 
-  const [updatedWorkflow] = await db
-    .update(workflows)
-    .set({ status: verifiedStatus })
+  const verifiedStatus = statusSchema.safeParse(status);
+  const verifiedNodeType = typeSchema.safeParse(nodeType);
+
+  const [workflow] = await db
+    .select()
+    .from(workflows)
     .where(eq(workflows.id, params.id));
 
-  return Response.json({ success: true, data: updatedWorkflow });
+  if (!workflow) {
+    return new Response("Workflow does not exist", { status: 404 });
+  }
+
+  if (verifiedStatus.success) {
+    const [updatedWorkflow] = await db
+      .update(workflows)
+      .set({ status: verifiedStatus.data })
+      .where(eq(workflows.id, params.id))
+      .returning();
+
+    return Response.json({ success: true, data: updatedWorkflow });
+  }
+
+  const workflowJson = workflow.buildConfig;
+
+  if (!workflowJson) {
+    return new Response("Workflow json does not exist", { status: 400 });
+  }
+
+  const nodeTypeId = randomUUID();
+  const placeholderId = randomUUID();
+
+  if (verifiedNodeType.success) {
+    const newNodes: Node[] = [
+      {
+        id: nodeTypeId,
+        data: { label: "New page" },
+        position: { x: 0, y: 0 },
+        type: verifiedNodeType.data,
+      },
+      {
+        id: placeholderId,
+        data: { label: "Placeholder" },
+        position: { x: 0, y: 0 },
+        type: "placeholderNode",
+      },
+    ];
+
+    const newEdges: Edge[] = [
+      { id: randomUUID(), source: parentId, target: nodeTypeId },
+      { id: randomUUID(), source: nodeTypeId, target: placeholderId },
+    ];
+
+    const nodes = workflowJson.nodes.concat(newNodes);
+    const edges = workflowJson.edges.concat(newEdges);
+    const [updatedWorkflow] = await db
+      .update(workflows)
+      .set({ buildConfig: { nodes, edges } })
+      .where(eq(workflows.id, params.id))
+      .returning();
+
+    return Response.json({ success: true, data: updatedWorkflow });
+  }
 }
 
 export async function DELETE(

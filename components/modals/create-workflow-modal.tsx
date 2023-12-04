@@ -47,7 +47,7 @@ export function CreateWorkflowModal() {
     });
 
     if (!res.ok) {
-      toast({ title: "Failed to create workflow" });
+      toast({ title: "Failed to create workflow", variant: "destructive" });
     } else {
       toast({ title: "Succesfully created the workflow" });
     }

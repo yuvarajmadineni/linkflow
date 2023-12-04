@@ -1,7 +1,8 @@
 "use client";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 import { useModal } from "@/hooks/use-modal-store";
+import { cn } from "@/lib/utils";
 import { CloudLightning } from "lucide-react";
 
 export function EmptyWorkflow() {
@@ -18,9 +19,13 @@ export function EmptyWorkflow() {
           builder!
         </CardContent>
         <CardFooter>
-          <Button onClick={() => onOpen("createworkflow")}>
+          <div
+            className={cn(buttonVariants())}
+            onClick={() => onOpen("createworkflow")}
+            role="button"
+          >
             Build Workflow
-          </Button>
+          </div>
         </CardFooter>
       </Card>
     </div>

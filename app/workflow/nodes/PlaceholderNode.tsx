@@ -22,7 +22,11 @@ export function PlaceholderNode(props: NodeProps) {
     });
 
     if (res.ok) {
-      toast({ title: `${type} created succesfully` });
+      toast({
+        title: `${
+          type === "branchNode" ? "Branch node" : "Page node"
+        } created succesfully`,
+      });
       const responseData = await res.json();
       setNodes(responseData.data.buildConfig.nodes);
       setEdges(responseData.data.buildConfig.edges);
@@ -44,7 +48,7 @@ export function PlaceholderNode(props: NodeProps) {
           </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuLabel>Choose node to add</DropdownMenuLabel>
+          <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             className="flex gap-2"

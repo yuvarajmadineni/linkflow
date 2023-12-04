@@ -63,9 +63,7 @@ export function WorkflowCard({ workflow }: { workflow: Workflow }) {
         <CardFooter className="p-0 pt-4 justify-end">
           <DropdownMenu>
             <DropdownMenuTrigger>
-              <Button variant="ghost" className="hover:bg-primary-foreground">
-                <MoreVertical />
-              </Button>
+              <MoreVertical />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem

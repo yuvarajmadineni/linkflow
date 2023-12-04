@@ -56,21 +56,21 @@ export async function PATCH(
         position: { x: 0, y: 0 },
         type: verifiedNodeType.data,
       },
-      {
-        id: placeholderId,
-        data: { label: "Placeholder" },
-        position: { x: 0, y: 0 },
-        type: "placeholderNode",
-      },
     ];
 
+    const updateEdges = workflow.buildConfig?.edges.map((edge) => {
+      if (edge.target === parentId) {
+        edge.target = nodeTypeId;
+      }
+      return edge;
+    })!;
+
     const newEdges: Edge[] = [
-      { id: randomUUID(), source: parentId, target: nodeTypeId },
-      { id: randomUUID(), source: nodeTypeId, target: placeholderId },
+      { id: randomUUID(), source: nodeTypeId, target: parentId },
     ];
 
     const nodes = workflowJson.nodes.concat(newNodes);
-    const edges = workflowJson.edges.concat(newEdges);
+    const edges = updateEdges?.concat(newEdges);
     const [updatedWorkflow] = await db
       .update(workflows)
       .set({ buildConfig: { nodes, edges } })

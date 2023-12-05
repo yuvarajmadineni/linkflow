@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { workflows } from "@/lib/schema";
 import { randomUUID } from "crypto";
-import { eq, param } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { Edge, Node } from "reactflow";
 import { z } from "zod";
 
@@ -11,7 +11,13 @@ export async function PATCH(
 ) {
   const body = await req.json();
 
-  const { status, nodeType, parentId } = body;
+  const {
+    status,
+    nodeType,
+    parentId,
+    nodes: presentNodes,
+    edges: presentEdges,
+  } = body;
 
   const statusSchema = z.enum(["published", "draft", "archived"]);
 
@@ -46,7 +52,6 @@ export async function PATCH(
   }
 
   const nodeTypeId = randomUUID();
-  const placeholderId = randomUUID();
 
   if (verifiedNodeType.success) {
     const newNodes: Node[] = [
@@ -58,7 +63,7 @@ export async function PATCH(
       },
     ];
 
-    const updateEdges = workflow.buildConfig?.edges.map((edge) => {
+    const updateEdges = presentEdges.map((edge: Edge) => {
       if (edge.target === parentId) {
         edge.target = nodeTypeId;
       }
@@ -69,7 +74,7 @@ export async function PATCH(
       { id: randomUUID(), source: nodeTypeId, target: parentId },
     ];
 
-    const nodes = workflowJson.nodes.concat(newNodes);
+    const nodes = presentNodes.concat(newNodes);
     const edges = updateEdges?.concat(newEdges);
     const [updatedWorkflow] = await db
       .update(workflows)

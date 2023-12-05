@@ -6,19 +6,25 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "@/components/ui/use-toast";
+import { useUndoRedoNodes } from "@/hooks/use-undo-redo-nodes-store";
 import { DropdownMenuLabel } from "@radix-ui/react-dropdown-menu";
 import { GitBranch, PlusCircle, Smartphone } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { Handle, NodeProps, Position, useReactFlow } from "reactflow";
 
 export function PlaceholderNode(props: NodeProps) {
-  const router = useRouter();
   const params = useParams();
+  const { update, nodes, edges } = useUndoRedoNodes();
   const { setNodes, setEdges } = useReactFlow();
   const handleAddNode = async (type: "pageNode" | "branchNode") => {
     const res = await fetch(`/api/organization/workflow/${params.id}`, {
       method: "PATCH",
-      body: JSON.stringify({ nodeType: type, parentId: props.id }),
+      body: JSON.stringify({
+        nodeType: type,
+        parentId: props.id,
+        nodes,
+        edges,
+      }),
     });
 
     if (res.ok) {
@@ -30,11 +36,10 @@ export function PlaceholderNode(props: NodeProps) {
       const responseData = await res.json();
       setNodes(responseData.data.buildConfig.nodes);
       setEdges(responseData.data.buildConfig.edges);
+      update(responseData.data.buildConfig);
     } else {
       toast({ title: `Something went wrong while creating ${type}` });
     }
-
-    router.refresh();
   };
 
   return (

@@ -2,7 +2,6 @@ import { Edge, Node } from "reactflow";
 import { create } from "zustand";
 
 interface UndoRedoStore {
-  workflowId: string;
   prevNodes: Array<Node[]>;
   prevEdges: Array<Edge[]>;
   nodes: Node[];
@@ -20,7 +19,6 @@ interface UndoRedoStore {
 }
 
 export const useUndoRedoNodes = create<UndoRedoStore>((set, get) => ({
-  workflowId: "",
   prevNodes: [],
   prevEdges: [],
   nodes: [],
@@ -81,5 +79,12 @@ export const useUndoRedoNodes = create<UndoRedoStore>((set, get) => ({
     });
   },
   setNodesEdges: ({ nodes, edges }: { nodes: Node[]; edges: Edge[] }) =>
-    set({ nodes, edges }),
+    set({
+      nodes,
+      edges,
+      prevNodes: [],
+      prevEdges: [],
+      futureNodes: [],
+      futureEdges: [],
+    }),
 }));

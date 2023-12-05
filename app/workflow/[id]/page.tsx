@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { getWorkflowById } from "@/lib/organization";
 import { ChevronLeft, Redo, Rocket, Undo, Verified } from "lucide-react";
 import { EditWorkflow } from "./edit-workflow";
+import { WorkflowChanges } from "./Changes";
+import { ReactFlowProvider } from "reactflow";
 
 export default async function WorkflowEditor({
   params,
@@ -40,29 +42,7 @@ export default async function WorkflowEditor({
           </ul>
         </div>
       </nav>
-      <section className="bg-gray-200 dark:bg-gray-700 py-2 px-4 w-full flex justify-between items-center">
-        <div className="flex gap-4">
-          <ChevronLeft />
-          <h2 className="text-base">{workflow.name}</h2>
-          <Badge variant={variant}>
-            {workflow.status.at(0)?.toUpperCase() + workflow.status.slice(1)}
-          </Badge>
-        </div>
-        <div className="flex gap-8 px-4 items-center">
-          <Verified className="h-7 w-7 fill-primary stroke-secondary" />
-          <div className="flex gap-4 items-center">
-            <div className="flex gap-4">
-              <Undo />
-              <Redo />
-            </div>
-            <Button variant="secondary">
-              <Rocket className="h-5 w-5 mr-2" />
-              Publish
-            </Button>
-          </div>
-        </div>
-      </section>
-      <EditWorkflow workflow={workflow} />
+      <WorkflowChanges workflow={workflow} />
     </div>
   );
 }

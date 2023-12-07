@@ -1,11 +1,6 @@
 import Logo from "@/components/logo";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { getWorkflowById } from "@/lib/organization";
-import { ChevronLeft, Redo, Rocket, Undo, Verified } from "lucide-react";
-import { EditWorkflow } from "./edit-workflow";
-import { WorkflowChanges } from "./Changes";
-import { ReactFlowProvider } from "reactflow";
+import { WorkflowChanges } from "../../../components/workflow/workflow-changes";
 
 export default async function WorkflowEditor({
   params,
@@ -13,20 +8,6 @@ export default async function WorkflowEditor({
   params: { id: string };
 }) {
   const workflow = await getWorkflowById(params.id);
-  let variant:
-    | "default"
-    | "secondary"
-    | "destructive"
-    | "outline"
-    | "success"
-    | "suspend" = "success";
-  if (workflow.status === "draft") {
-    variant = "default";
-  }
-
-  if (workflow.status === "archived") {
-    variant = "suspend";
-  }
   return (
     <div>
       <nav className="bg-secondary py-4 px-4 w-full flex justify-between items-center">

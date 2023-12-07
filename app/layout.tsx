@@ -30,9 +30,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <ModalProvider />
-            <main>
-              <QueryProvider>{children}</QueryProvider>
-            </main>
+            <QueryProvider>{children}</QueryProvider>
             <Toaster />
           </ThemeProvider>
         </body>

@@ -7,11 +7,11 @@ import ReactFlow, {
   useEdgesState,
   useNodesState,
 } from "reactflow";
-import { Layout } from "./ForceLayout";
+import { Layout } from "./force-layout";
 
 import { Workflow } from "@/lib/utils";
 import "reactflow/dist/style.css";
-import { nodeTypes } from "../nodes/types";
+import { nodeTypes } from "./nodes/types";
 import { useUndoRedoNodes } from "@/hooks/use-undo-redo-nodes-store";
 import { useEffect } from "react";
 

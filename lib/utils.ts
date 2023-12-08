@@ -36,3 +36,7 @@ export const getInitialWorkflow = () => {
 
   return { initialNodes, initialEdges };
 };
+
+export function idGenerator() {
+  return Math.floor(Math.random() * 10001).toString();
+}

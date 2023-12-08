@@ -6,9 +6,9 @@ export type Element = {
   type: ElementsType;
   construct: (id: string) => ElementInstance;
   designerBtnElement: { icon: React.ElementType; label: string };
-  designerComponent: React.FC;
+  designerComponent: React.FC<{ elementInstance: ElementInstance }>;
   component: React.FC;
-  propertiesComponent: React.FC;
+  propertiesComponent: React.FC<{ elementInstance: ElementInstance }>;
 };
 
 export type ElementInstance = {

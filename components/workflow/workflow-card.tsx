@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Workflow, cn } from "@/lib/utils";
 import { Badge } from "../ui/badge";
-import { format } from "date-fns";
+import { format, formatDistance } from "date-fns";
 import { Copy, MoreVertical, Navigation, Trash, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,7 +25,6 @@ export function WorkflowCard({ workflow }: { workflow: Workflow }) {
   const router = useRouter();
   const { onOpen } = useModal();
   const { name, status, createdAt } = workflow;
-  const date = format(createdAt, "MMMM d, yyyy");
   let variant:
     | "default"
     | "secondary"
@@ -58,7 +57,9 @@ export function WorkflowCard({ workflow }: { workflow: Workflow }) {
         </CardHeader>
         <div>
           <p className="text-xs text-muted-foreground">Created</p>
-          <span className="text-sm font-normal">{date}</span>
+          <span className="text-sm font-normal">
+            {formatDistance(createdAt, new Date(), { addSuffix: true })}
+          </span>
         </div>
         <CardFooter className="p-0 pt-4 justify-end">
           <DropdownMenu>

@@ -39,7 +39,10 @@ export function WorkflowChanges({ workflow }: { workflow: Workflow }) {
               <UndoBtn />
               <RedoBtn />
             </div>
-            <Button variant="secondary">
+            <Button
+              variant="secondary"
+              disabled={workflow.status === "published"}
+            >
               <Rocket className="h-5 w-5 mr-2" />
               Publish
             </Button>

@@ -2,7 +2,7 @@ import { Active, DragOverlay, useDndMonitor } from "@dnd-kit/core";
 import { useState } from "react";
 import { ButtonElementDragOverlay } from "./workflow/components/button-element";
 import { Elements, ElementsType } from "./workflow/workflow-components";
-import { useDesigner } from "@/hooks/use-designer";
+import { useDesigner } from "@/hooks/use-designer-store";
 
 export function DragOverlayWrapper() {
   const { elements } = useDesigner();
@@ -40,7 +40,7 @@ export function DragOverlayWrapper() {
     } else {
       const DesignerElementComponent = Elements[element.type].designerComponent;
       node = (
-        <div className="flex bg-accent border rounded-md h-[120px] w-full py-2 px-4 opacity-80 pointer-events-none">
+        <div className="flex bg-accent border rounded-md  w-full py-2 px-4 opacity-80 pointer-events-none">
           <DesignerElementComponent elementInstance={element} />
         </div>
       );

@@ -1,4 +1,4 @@
-import { useDesigner } from "@/hooks/use-designer";
+import { useDesigner } from "@/hooks/use-designer-store";
 import { cn, idGenerator } from "@/lib/utils";
 import {
   DragEndEvent,
@@ -6,10 +6,8 @@ import {
   useDraggable,
   useDroppable,
 } from "@dnd-kit/core";
-import { ElementInstance, Elements, ElementsType } from "./workflow-components";
 import { useState } from "react";
-import { Button } from "../ui/button";
-import { Trash2 } from "lucide-react";
+import { ElementInstance, Elements, ElementsType } from "./workflow-components";
 export function Designer() {
   const {
     elements,
@@ -136,7 +134,7 @@ export function Designer() {
           )}
           {droppable.isOver && elements.length === 0 && (
             <div className="p-4 w-full">
-              <div className="h-[120px] rounded-md bg-primary/20"></div>
+              <div className="rounded-md bg-primary/20"></div>
             </div>
           )}
           {elements.length > 0 && (
@@ -154,7 +152,7 @@ export function Designer() {
 
 function DesignerElementWrapper({ element }: { element: ElementInstance }) {
   const [mouseIsOver, setIsMouseOver] = useState<boolean>(false);
-  const { removeElement, selectedElement, setSelectedElement } = useDesigner();
+  const { selectedElement, setSelectedElement } = useDesigner();
   const topHalf = useDroppable({
     id: element.id + "-top",
     data: {
@@ -185,14 +183,13 @@ function DesignerElementWrapper({ element }: { element: ElementInstance }) {
   const DesignerElement = Elements[element.type].designerComponent;
 
   if (draggable.isDragging) return null;
-  console.log("SELECTE_EL", selectedElement);
 
   return (
     <div
       ref={draggable.setNodeRef}
       {...draggable.listeners}
       {...draggable.attributes}
-      className="relative h-[120px] flex flex-col text-foreground hover:cursor-pointer rounded-md ring-1 ring-accent ring-inset"
+      className="relative  flex flex-col text-foreground hover:cursor-pointer rounded-md ring-1 ring-accent ring-inset"
       onMouseEnter={() => setIsMouseOver(true)}
       onMouseLeave={() => setIsMouseOver(false)}
       onClick={(e) => {
@@ -210,18 +207,6 @@ function DesignerElementWrapper({ element }: { element: ElementInstance }) {
       >
         {mouseIsOver && (
           <>
-            <div className="absolute right-0 h-full">
-              <Button
-                className="flex justify-center h-full border rounded-md rounded-l-none bg-red-500"
-                variant="outline"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  removeElement(element.id);
-                }}
-              >
-                <Trash2 className="h-6 w-6" />
-              </Button>
-            </div>
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse">
               <p className="text-muted-foreground text-sm">
                 Click for properties or drag to move
@@ -238,7 +223,7 @@ function DesignerElementWrapper({ element }: { element: ElementInstance }) {
       )}
       <div
         className={cn(
-          "flex w-full h-[120px] items-center rounded-md bg-accent/40 px-4 py-2 pointer-events-none opacity-100",
+          "flex w-full  items-center rounded-md bg-accent/40 px-4 py-2 pointer-events-none opacity-100",
           mouseIsOver && "opacity-30"
         )}
       >

@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { workflows } from "@/lib/schema";
+import { pageNode, workflows } from "@/lib/schema";
 import { randomUUID } from "crypto";
 import { eq } from "drizzle-orm";
 import { Edge, Node } from "reactflow";
@@ -74,13 +74,24 @@ export async function PATCH(
       { id: randomUUID(), source: nodeTypeId, target: parentId },
     ];
 
+
     const nodes = presentNodes.concat(newNodes);
     const edges = updateEdges?.concat(newEdges);
-    const [updatedWorkflow] = await db
-      .update(workflows)
-      .set({ buildConfig: { nodes, edges } })
-      .where(eq(workflows.id, params.id))
-      .returning();
+    const [updatedWorkflow] = await db.transaction(async (tx) => {
+      const workflowUpdated = await tx
+        .update(workflows)
+        .set({ buildConfig: { nodes, edges } })
+        .where(eq(workflows.id, params.id))
+        .returning();
+
+      if (verifiedNodeType.data === "pageNode") {
+        const page = await tx
+          .insert(pageNode)
+          .values({ workflowId: workflow.id, id: nodeTypeId })
+          .returning();
+      }
+      return workflowUpdated;
+    });
 
     return Response.json({ success: true, data: updatedWorkflow });
   }

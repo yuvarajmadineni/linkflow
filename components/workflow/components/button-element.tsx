@@ -16,7 +16,7 @@ export function ButtonElement({ element }: { element: Element }) {
     <Button
       ref={draggable.setNodeRef}
       className={cn(
-        "flex flex-col gap-2 h-[120px] w-[120px] cursor-grab",
+        "flex flex-col gap-2 sm:h-[40px] sm:w-[40px] md:h-[80px] md:w-[60px] lg:h-[120px] lg:w-[120px] cursor-grab",
         draggable.isDragging && "ring-2 ring-primary"
       )}
       variant="outline"
@@ -24,7 +24,7 @@ export function ButtonElement({ element }: { element: Element }) {
       {...draggable.attributes}
     >
       <Icon className="h-8 w-8 text-primary cursor-grab" />
-      <p className="text-xs">{label}</p>
+      <p className="text-xs md:truncate w-full">{label}</p>
     </Button>
   );
 }

@@ -1,16 +1,17 @@
 import { Smartphone } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Handle, NodeProps, Position } from "reactflow";
 
 export function PageNode(props: NodeProps<{ label: string }>) {
   const { data, id } = props;
   const router = useRouter();
+  const params = useParams();
   return (
     <>
       <Handle type="target" position={Position.Top} />
       <div
         className="rounded-full bg-secondary flex items-center gap-2 px-4 py-2 w-44 max-w-xl"
-        onClick={() => router.push(`/pagenode/${id}`)}
+        onClick={() => router.push(`/workflow/${params.id}/pagenode/${id}`)}
       >
         <Smartphone className="h-4 w-4" />
         <div className="flex flex-col">

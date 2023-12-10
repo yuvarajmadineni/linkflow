@@ -197,6 +197,20 @@
       "when": 1701622899722,
       "tag": "0028_lonely_dazzler",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "5",
+      "when": 1702221690259,
+      "tag": "0029_slippery_ikaris",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "5",
+      "when": 1702227268010,
+      "tag": "0030_loud_madelyne_pryor",
+      "breakpoints": true
     }
   ]
 }

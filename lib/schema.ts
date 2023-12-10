@@ -11,6 +11,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { Edge, Node } from "reactflow";
 import { getInitialWorkflow } from "./utils";
+import { ElementInstance } from "@/components/workflow/workflow-components";
 
 export const organization = pgTable("organization", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -94,6 +95,16 @@ export const workflows = pgTable("workflows", {
   buildConfig: jsonb("build_config")
     .$type<WorkflowBuildConfig>()
     .default({ nodes: initialNodes, edges: initialEdges }),
+});
+
+export const pageNode = pgTable("pagenode", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name"),
+  title: text("title"),
+  elements: jsonb("elements").$type<ElementInstance[]>().default([]),
+  workflowId: uuid("workflow_id")
+    .notNull()
+    .references(() => workflows.id, { onDelete: "cascade" }),
 });
 
 export const userRelations = relations(users, ({ one }) => ({

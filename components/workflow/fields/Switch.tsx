@@ -1,14 +1,5 @@
 "use client";
 
-import { Text } from "lucide-react";
-import { Element, ElementInstance, ElementsType } from "../workflow-components";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
-import { useDesigner } from "@/hooks/use-designer-store";
 import {
   Form,
   FormControl,
@@ -18,34 +9,41 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { useDesigner } from "@/hooks/use-designer-store";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ToggleRight, Type } from "lucide-react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Element, ElementInstance, ElementsType } from "../workflow-components";
 
-const type: ElementsType = "TextField";
+const type: ElementsType = "SwitchField";
 
 const extraAttributes = {
-  label: "Text Field",
+  label: "Switch",
   helperText: "",
-  required: false,
-  placeholder: "",
+  checked: false,
 };
 
 const propertiesSchema = z.object({
-  label: z.string().min(2).max(50),
-  helperText: z.string().max(200),
-  required: z.boolean().default(false),
-  placeholder: z.string().max(50),
+  label: z.string().min(2).max(100),
+  helperText: z.string().optional(),
+  checked: z.boolean().default(false),
 });
 
 type PropertiesSchemaType = z.infer<typeof propertiesSchema>;
 
-export const TextFieldElement: Element = {
+export const SwitchElement: Element = {
   type,
   construct: (id: string) => ({
     id,
     type,
     extraAttributes,
   }),
-  designerBtnElement: { icon: Text, label: "Textfield" },
+  designerBtnElement: { icon: ToggleRight, label: "Switch" },
   designerComponent: DesignerComponent,
   component: FormComponent,
   propertiesComponent: PropertiesComponent,
@@ -62,16 +60,13 @@ function DesignerComponent({
 }) {
   const element = elementInstance as CustomInstance;
 
-  const { label, required, placeholder, helperText } = element.extraAttributes;
+  const { label, checked, helperText } = element.extraAttributes;
   return (
     <div className="flex flex-col gap-2 w-full">
-      <Label>
-        {label}
-        {required && "*"}
-      </Label>
-      <Input readOnly disabled placeholder={placeholder} />
+      <Label>{label}</Label>
+      <Switch checked={checked} />
       {helperText && (
-        <p className="text-muted-foreground text-[0.8rem]">{helperText}</p>
+        <p className="text-sm text-muted-foreground">{helperText}</p>
       )}
     </div>
   );
@@ -84,18 +79,15 @@ function FormComponent({
 }) {
   const element = elementInstance as CustomInstance;
 
-  const { label, required, placeholder, helperText } = element.extraAttributes;
+  const { checked, label, helperText } = element.extraAttributes;
   return (
-    <div className="flex flex-col gap-2 w-full">
-      <Label>
-        {label}
-        {required && "*"}
-      </Label>
-      <Input placeholder={placeholder} />
+    <>
+      <Label>{label}</Label>
+      <Switch checked={checked} />
       {helperText && (
-        <p className="text-muted-foreground text-[0.8rem]">{helperText}</p>
+        <p className="text-sm text-muted-foreground">{helperText}</p>
       )}
-    </div>
+    </>
   );
 }
 
@@ -106,15 +98,14 @@ function PropertiesComponent({
 }) {
   const { updateElement } = useDesigner();
   const element = elementInstance as CustomInstance;
-  const { label, required, helperText, placeholder } = element.extraAttributes;
+  const { label, helperText, checked } = element.extraAttributes;
   const form = useForm({
     resolver: zodResolver(propertiesSchema),
     mode: "onBlur",
     defaultValues: {
       label,
-      required,
       helperText,
-      placeholder,
+      checked,
     },
   });
 
@@ -149,29 +140,6 @@ function PropertiesComponent({
                   }}
                 />
               </FormControl>
-              <FormDescription>
-                The label of the field <br /> It will be displayed above the
-                field
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="placeholder"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Placeholder</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") e.currentTarget.blur();
-                  }}
-                />
-              </FormControl>
-              <FormDescription>The placeholder of the field</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -200,23 +168,19 @@ function PropertiesComponent({
         />
         <FormField
           control={form.control}
-          name="required"
+          name="checked"
           render={({ field }) => (
-            <FormItem className="flex items-center justify-between rounded-lg border shadow-sm p-3">
-              <div className="space-y-0.5">
-                <FormLabel>Required </FormLabel>
-                <FormDescription>
-                  The helpertext of the field <br /> It will be displayed below
-                  the field
-                </FormDescription>
-              </div>
+            <FormItem className="flex gap-4 items-center">
+              <FormLabel className="mt-2">Value</FormLabel>
               <FormControl>
                 <Switch
                   checked={field.value}
                   onCheckedChange={field.onChange}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") e.currentTarget.blur();
+                  }}
                 />
               </FormControl>
-
               <FormMessage />
             </FormItem>
           )}

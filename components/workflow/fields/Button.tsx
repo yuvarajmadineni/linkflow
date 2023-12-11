@@ -26,11 +26,12 @@ import {
   SelectValue,
   SelectTrigger,
 } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 const type: ElementsType = "ButtonField";
 
 const extraAttributes = {
-  type: "default" as ButtonVariant,
+  variant: "default" as ButtonVariant,
   text: "Button",
 };
 
@@ -52,7 +53,7 @@ const variants = [
 ];
 
 const propertiesSchema = z.object({
-  type: z.enum([
+  variant: z.enum([
     "default",
     "secondary",
     "outline",
@@ -91,9 +92,12 @@ function DesignerComponent({
 
   const { text, type } = element.extraAttributes;
   return (
-    <Button variant={type as ButtonVariant} className="w-full">
-      {text}
-    </Button>
+    <div className="flex flex-col gap-2 w-full">
+      <Label>Button</Label>
+      <Button variant={type as ButtonVariant} className="w-full">
+        {text}
+      </Button>
+    </div>
   );
 }
 
@@ -115,13 +119,13 @@ function PropertiesComponent({
 }) {
   const { updateElement } = useDesigner();
   const element = elementInstance as CustomInstance;
-  const { type, text } = element.extraAttributes;
+  const { variant, text } = element.extraAttributes;
   const form = useForm({
     resolver: zodResolver(propertiesSchema),
     mode: "onBlur",
     defaultValues: {
-      type,
       text,
+      variant,
     },
   });
 
@@ -144,7 +148,7 @@ function PropertiesComponent({
       >
         <FormField
           control={form.control}
-          name="type"
+          name="variant"
           render={({ field }) => (
             <FormItem className="flex gap-4 items-center">
               <FormLabel className="mt-2">Type</FormLabel>

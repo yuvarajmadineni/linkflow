@@ -5,7 +5,7 @@ import { Element, ElementInstance, ElementsType } from "../workflow-components";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { z } from "zod";
-import { useForm } from "react-hook-form";
+import { ControllerRenderProps, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
 import { useDesigner } from "@/hooks/use-designer-store";
@@ -36,6 +36,7 @@ const extraAttributes = {
   required: false,
   placeholder: "",
   options: [],
+  value: "",
 };
 
 const propertiesSchema = z.object({
@@ -44,6 +45,7 @@ const propertiesSchema = z.object({
   required: z.boolean().default(false),
   placeholder: z.string().max(50),
   options: z.string().array(),
+  value: z.string(),
 });
 
 type PropertiesSchemaType = z.infer<typeof propertiesSchema>;
@@ -59,6 +61,7 @@ export const SelectFieldElement: Element = {
   designerComponent: DesignerComponent,
   component: FormComponent,
   propertiesComponent: PropertiesComponent,
+  pageComponent: SelectFieldPageComponent,
 };
 
 type CustomInstance = ElementInstance & {
@@ -109,7 +112,6 @@ function FormComponent({
   const { label, required, placeholder, helperText, options } =
     element.extraAttributes;
 
-  console.log("option", options);
   return (
     <div className="flex flex-col gap-2 w-full">
       <Label>
@@ -142,7 +144,7 @@ function PropertiesComponent({
 }) {
   const { updateElement } = useDesigner();
   const element = elementInstance as CustomInstance;
-  const { label, required, helperText, placeholder, options } =
+  const { label, required, helperText, placeholder, options, value } =
     element.extraAttributes;
   const form = useForm({
     resolver: zodResolver(propertiesSchema),
@@ -153,10 +155,11 @@ function PropertiesComponent({
       helperText,
       placeholder,
       options,
+      value,
     },
   });
 
-  const [selectOptions, setSelectOptions] = useState<string[]>([]);
+  const [selectOptions, setSelectOptions] = useState<string[]>(options);
   const [option, setOption] = useState("");
 
   useEffect(() => {
@@ -203,6 +206,27 @@ function PropertiesComponent({
         />
         <FormField
           control={form.control}
+          name="value"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Value</FormLabel>
+              <FormControl>
+                <Input
+                  {...field}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") e.currentTarget.blur();
+                  }}
+                />
+              </FormControl>
+              <FormDescription>
+                The varible name of the field where the value gets stored
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
           name="placeholder"
           render={({ field }) => (
             <FormItem>
@@ -233,7 +257,7 @@ function PropertiesComponent({
                 updateElement(element.id, {
                   ...element,
                   extraAttributes: {
-                    ...extraAttributes,
+                    ...element.extraAttributes,
                     options: selectOptions,
                   },
                 });
@@ -247,6 +271,13 @@ function PropertiesComponent({
                 className="w-fit"
                 onClick={(e) => {
                   setSelectOptions((prev) => prev.filter((v) => v !== op));
+                  updateElement(element.id, {
+                    ...element,
+                    extraAttributes: {
+                      ...element.extraAttributes,
+                      options: selectOptions.filter((v) => v !== op),
+                    },
+                  });
                 }}
               >
                 {op}
@@ -298,5 +329,40 @@ function PropertiesComponent({
         />
       </form>
     </Form>
+  );
+}
+
+export function SelectFieldPageComponent({
+  elementInstance,
+  field,
+}: {
+  elementInstance: ElementInstance;
+  field: ControllerRenderProps<any>;
+}) {
+  const element = elementInstance as CustomInstance;
+  const { helperText, label, options, placeholder } = element.extraAttributes;
+
+  return (
+    <>
+      <FormItem>
+        <FormLabel>{label}</FormLabel>
+        <FormControl>
+          <Select {...field} onValueChange={field.onChange}>
+            <SelectTrigger>
+              <SelectValue placeholder={placeholder} />
+            </SelectTrigger>
+            <SelectContent>
+              {options?.map((option) => (
+                <SelectItem key={option} value={option}>
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </FormControl>
+        {helperText && <FormDescription>{helperText}</FormDescription>}
+        <FormMessage />
+      </FormItem>
+    </>
   );
 }

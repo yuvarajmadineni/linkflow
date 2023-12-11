@@ -1,3 +1,4 @@
+import { ControllerRenderProps } from "react-hook-form";
 import { ButtonElement } from "./fields/Button";
 import { SelectFieldElement } from "./fields/Select";
 import { SeperatorFieldElement } from "./fields/SeperatorField";
@@ -22,6 +23,7 @@ export type Element = {
   designerComponent: React.FC<{ elementInstance: ElementInstance }>;
   component: React.FC<{ elementInstance: ElementInstance }>;
   propertiesComponent: React.FC<{ elementInstance: ElementInstance }>;
+  pageComponent?: React.FC<{ elementInstance: ElementInstance , field: ControllerRenderProps<any>}>;
 };
 
 export type ElementInstance = {

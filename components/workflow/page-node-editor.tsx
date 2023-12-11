@@ -42,7 +42,7 @@ export function PageNodeEditor({
   const [loading, setLoading] = useState(false);
 
   const [name, setName] = useState(pageNodeProperties.name || "");
-  const { elements, setElements } = useDesigner();
+  const { elements, setElements, setSelectedElement } = useDesigner();
 
   const touchSensor = useSensor(TouchSensor, {
     activationConstraint: { delay: 300, tolerance: 5 },
@@ -72,8 +72,11 @@ export function PageNodeEditor({
   const sensors = useSensors(mouseSensor, touchSensor);
 
   useEffect(() => {
-    if (pageNodeProperties.elements) setElements(pageNodeProperties.elements);
-  }, [pageNodeProperties, setElements]);
+    if (pageNodeProperties.elements) {
+      setElements(pageNodeProperties.elements);
+      setSelectedElement(null);
+    }
+  }, [pageNodeProperties, setElements, setSelectedElement]);
   return (
     <DndContext sensors={sensors}>
       <div className="flex flex-col w-full py-6 px-4 gap-4">

@@ -16,7 +16,7 @@ import { useDesigner } from "@/hooks/use-designer-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ToggleRight, Type } from "lucide-react";
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { ControllerRenderProps, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Element, ElementInstance, ElementsType } from "../workflow-components";
 
@@ -26,12 +26,14 @@ const extraAttributes = {
   label: "Switch",
   helperText: "",
   checked: false,
+  value: "",
 };
 
 const propertiesSchema = z.object({
   label: z.string().min(2).max(100),
   helperText: z.string().optional(),
   checked: z.boolean().default(false),
+  value: z.string().trim().min(1),
 });
 
 type PropertiesSchemaType = z.infer<typeof propertiesSchema>;
@@ -47,6 +49,7 @@ export const SwitchElement: Element = {
   designerComponent: DesignerComponent,
   component: FormComponent,
   propertiesComponent: PropertiesComponent,
+  pageComponent:SwitchFieldPageComponent
 };
 
 type CustomInstance = ElementInstance & {
@@ -83,7 +86,7 @@ function FormComponent({
   return (
     <>
       <Label>{label}</Label>
-      <Switch checked={checked} />
+      <Switch defaultChecked={checked} />
       {helperText && (
         <p className="text-sm text-muted-foreground">{helperText}</p>
       )}
@@ -98,7 +101,7 @@ function PropertiesComponent({
 }) {
   const { updateElement } = useDesigner();
   const element = elementInstance as CustomInstance;
-  const { label, helperText, checked } = element.extraAttributes;
+  const { label, helperText, checked, value } = element.extraAttributes;
   const form = useForm({
     resolver: zodResolver(propertiesSchema),
     mode: "onBlur",
@@ -106,6 +109,7 @@ function PropertiesComponent({
       label,
       helperText,
       checked,
+      value,
     },
   });
 
@@ -140,6 +144,27 @@ function PropertiesComponent({
                   }}
                 />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="value"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Value</FormLabel>
+              <FormControl>
+                <Input
+                  {...field}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") e.currentTarget.blur();
+                  }}
+                />
+              </FormControl>
+              <FormDescription>
+                The varible name of the field where the value gets stored
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -187,5 +212,29 @@ function PropertiesComponent({
         />
       </form>
     </Form>
+  );
+}
+
+export function SwitchFieldPageComponent({
+  elementInstance,
+  field,
+}: {
+  elementInstance: ElementInstance;
+  field: ControllerRenderProps<any>;
+}) {
+  const element = elementInstance as CustomInstance;
+  const { helperText, label, value } = element.extraAttributes;
+
+  return (
+    <>
+      <FormItem>
+        <FormLabel>{label}</FormLabel>
+        <FormControl>
+          <Switch checked={field.value} onCheckedChange={field.onChange} />
+        </FormControl>
+        {helperText && <FormDescription>{helperText}</FormDescription>}
+        <FormMessage />
+      </FormItem>
+    </>
   );
 }

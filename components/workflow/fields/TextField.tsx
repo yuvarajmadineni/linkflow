@@ -5,7 +5,7 @@ import { Element, ElementInstance, ElementsType } from "../workflow-components";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { z } from "zod";
-import { useForm } from "react-hook-form";
+import { ControllerRenderProps, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useDesigner } from "@/hooks/use-designer-store";
@@ -27,6 +27,7 @@ const extraAttributes = {
   helperText: "",
   required: false,
   placeholder: "",
+  value: "",
 };
 
 const propertiesSchema = z.object({
@@ -34,6 +35,7 @@ const propertiesSchema = z.object({
   helperText: z.string().max(200),
   required: z.boolean().default(false),
   placeholder: z.string().max(50),
+  value: z.string().trim().min(1),
 });
 
 type PropertiesSchemaType = z.infer<typeof propertiesSchema>;
@@ -49,6 +51,7 @@ export const TextFieldElement: Element = {
   designerComponent: DesignerComponent,
   component: FormComponent,
   propertiesComponent: PropertiesComponent,
+  pageComponent: TextFieldPageComponent,
 };
 
 type CustomInstance = ElementInstance & {
@@ -106,7 +109,8 @@ function PropertiesComponent({
 }) {
   const { updateElement } = useDesigner();
   const element = elementInstance as CustomInstance;
-  const { label, required, helperText, placeholder } = element.extraAttributes;
+  const { label, required, helperText, placeholder, value } =
+    element.extraAttributes;
   const form = useForm({
     resolver: zodResolver(propertiesSchema),
     mode: "onBlur",
@@ -115,6 +119,7 @@ function PropertiesComponent({
       required,
       helperText,
       placeholder,
+      value,
     },
   });
 
@@ -152,6 +157,27 @@ function PropertiesComponent({
               <FormDescription>
                 The label of the field <br /> It will be displayed above the
                 field
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="value"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Value</FormLabel>
+              <FormControl>
+                <Input
+                  {...field}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") e.currentTarget.blur();
+                  }}
+                />
+              </FormControl>
+              <FormDescription>
+                The varible name of the field where the value gets stored
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -223,5 +249,30 @@ function PropertiesComponent({
         />
       </form>
     </Form>
+  );
+}
+
+export function TextFieldPageComponent({
+  elementInstance,
+  field,
+}: {
+  elementInstance: ElementInstance;
+  field: ControllerRenderProps<any>;
+}) {
+  const element = elementInstance as CustomInstance;
+  const { helperText, label, placeholder, required, value } =
+    element.extraAttributes;
+
+  return (
+    <>
+      <FormItem>
+        <FormLabel>{label}</FormLabel>
+        <FormControl>
+          <Input {...field} />
+        </FormControl>
+        {helperText && <FormDescription>{helperText}</FormDescription>}
+        <FormMessage />
+      </FormItem>
+    </>
   );
 }

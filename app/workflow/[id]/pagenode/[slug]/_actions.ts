@@ -4,6 +4,7 @@ import { ElementInstance } from "@/components/workflow/workflow-components";
 import { db } from "@/lib/db";
 import { pageNode } from "@/lib/schema";
 import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 
 export async function savePageNodeProperties({
   name,
@@ -18,6 +19,7 @@ export async function savePageNodeProperties({
   workflowId: string;
   nodeId: string;
 }) {
+  revalidatePath(`/workflow/${workflowId}/pagenode/${nodeId}`);
   return db
     .update(pageNode)
     .set({ name, elements, title, workflowId })

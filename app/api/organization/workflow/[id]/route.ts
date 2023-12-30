@@ -17,6 +17,7 @@ export async function PATCH(
     parentId,
     nodes: presentNodes,
     edges: presentEdges,
+    nodeId,
   } = body;
 
   const statusSchema = z.enum(["published", "draft", "archived"]);
@@ -54,7 +55,7 @@ export async function PATCH(
   const nodeTypeId = randomUUID();
 
   if (verifiedNodeType.success) {
-    const newNodes: Node[] = [
+    let newNodes: Node[] = [
       {
         id: nodeTypeId,
         data: { label: "New page" },
@@ -63,17 +64,47 @@ export async function PATCH(
       },
     ];
 
+    const placeholder = workflowJson.nodes.find(
+      (n) => n.type === "placeholderNode"
+    );
+
+    let isFirstNode = false;
+
     const updateEdges = presentEdges.map((edge: Edge) => {
-      if (edge.target === parentId) {
+      if (nodeId && edge.source === nodeId && edge.target === placeholder?.id) {
+        edge.target = nodeTypeId;
+        isFirstNode = true;
+      } else if (edge.target === parentId) {
         edge.target = nodeTypeId;
       }
       return edge;
     })!;
 
-    const newEdges: Edge[] = [
-      { id: randomUUID(), source: nodeTypeId, target: parentId },
-    ];
+    let newEdges: Edge[] = [];
 
+    if (parentId) {
+      newEdges = [{ id: randomUUID(), source: nodeTypeId, target: parentId }];
+    }
+
+    if (nodeId && !isFirstNode) {
+      const placeholderId = randomUUID();
+      newNodes.push({
+        id: placeholderId,
+        data: { label: "Placeholder" },
+        position: { x: 0, y: 0 },
+        type: "placeholderNode",
+      });
+      newEdges = [
+        { id: randomUUID(), source: nodeId, target: nodeTypeId },
+        { id: randomUUID(), source: nodeTypeId, target: placeholderId },
+      ];
+    }
+
+    if (isFirstNode) {
+      newEdges = [
+        { id: randomUUID(), source: nodeTypeId, target: placeholder?.id! },
+      ];
+    }
 
     const nodes = presentNodes.concat(newNodes);
     const edges = updateEdges?.concat(newEdges);
@@ -85,7 +116,7 @@ export async function PATCH(
         .returning();
 
       if (verifiedNodeType.data === "pageNode") {
-        const page = await tx
+        await tx
           .insert(pageNode)
           .values({ workflowId: workflow.id, id: nodeTypeId })
           .returning();

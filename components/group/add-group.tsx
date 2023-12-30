@@ -86,11 +86,11 @@ export function AddGroup({ users }: { users: User[] }) {
 
     if (!res.ok) {
       toast({ title: "Failed to create group" });
-      refresh();
     } else {
       toast({ title: "Successfully created the new group" });
       setOpen(false);
       clearSearchParams();
+      refresh();
     }
   };
 
@@ -190,6 +190,7 @@ export function AddGroup({ users }: { users: User[] }) {
                       user={user}
                       addedUsers={addedUsers}
                       setAddedUsers={setAddedUsers}
+                      key={user.id}
                     />
                   ))
                 )}

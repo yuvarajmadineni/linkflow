@@ -93,7 +93,7 @@ export function EditGroup({
       if (groupUsers && addedUsers.length === 0 && open)
         setAddedUsers(groupUsers);
     },
-    [groupUsers, open]
+    [groupUsers, open, addedUsers, setAddedUsers]
   );
 
   return (
@@ -174,6 +174,7 @@ export function EditGroup({
                     user={user}
                     addedUsers={addedUsers}
                     setAddedUsers={setAddedUsers}
+                    key={user.id}
                   />
                 ))
               )}

@@ -1,7 +1,9 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
 
+import { EditGroup } from "@/components/group/edit-group";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -13,7 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import { UserAvatar } from "@/components/user/user-avatar";
 import { useModal } from "@/hooks/use-modal-store";
 import { Group, getUserAvatar } from "@/lib/utils";
@@ -26,9 +28,8 @@ import {
   PauseCircle,
   Trash2,
 } from "lucide-react";
-import { User } from "./usercolumns";
-import { EditGroup } from "@/components/group/edit-group";
 import { useState } from "react";
+import { User } from "./usercolumns";
 
 export const columns: ColumnDef<Group & { users: User[] }>[] = [
   {
@@ -63,6 +64,7 @@ export const columns: ColumnDef<Group & { users: User[] }>[] = [
             <UserAvatar
               src={mem.imageUrl || getUserAvatar(mem.email)}
               className="md:h-5 md:w-5 md:-mr-2"
+              key={mem.id}
             />
           ))}
           {members.length > 4 && (
@@ -162,7 +164,6 @@ export const columns: ColumnDef<Group & { users: User[] }>[] = [
                   </div>
                 </DropdownMenuItem>
               </SheetTrigger>
-              <SheetContent>Hii</SheetContent>
               <DropdownMenuItem
                 onClick={() => onOpen("suspendgroup", { group: row.original })}
               >

@@ -6,6 +6,7 @@ import ReactFlow, {
   MiniMap,
   useEdgesState,
   useNodesState,
+  useReactFlow,
 } from "reactflow";
 import { Layout } from "./force-layout";
 
@@ -22,16 +23,17 @@ const defaultEdgeOptions = {
 };
 
 export function EditWorkflow({ workflow }: { workflow: Workflow }) {
-  const [nodes, __, onNodesChange] = useNodesState(
-    workflow.buildConfig?.nodes!
-  );
-  const [edges, _, onEdgesChange] = useEdgesState(workflow.buildConfig?.edges!);
+  const [nodes, __, onNodesChange] = useNodesState([]);
+  const [edges, _, onEdgesChange] = useEdgesState([]);
+  const { setEdges, setNodes } = useReactFlow();
 
   const { setNodesEdges } = useUndoRedoNodes();
 
   useEffect(() => {
     setNodesEdges(workflow.buildConfig!);
-  }, [workflow]);
+    setNodes(workflow.buildConfig?.nodes!);
+    setEdges(workflow.buildConfig?.edges!);
+  }, [setEdges, setNodes, setNodesEdges, workflow]);
 
   return (
     <div className="h-[85vh] w-full">

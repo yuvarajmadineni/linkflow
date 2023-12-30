@@ -19,10 +19,10 @@ export async function savePageNodeProperties({
   workflowId: string;
   nodeId: string;
 }) {
-  revalidatePath(`/workflow/${workflowId}/pagenode/${nodeId}`);
-  return db
+  await db
     .update(pageNode)
     .set({ name, elements, title, workflowId })
     .where(eq(pageNode.id, nodeId))
     .returning();
+  revalidatePath(`/workflow/${workflowId}/pagenode/${nodeId}`);
 }

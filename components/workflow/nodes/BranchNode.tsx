@@ -139,6 +139,7 @@ const Condition = ({
   workflowId: string;
   targetId: string;
 }) => {
+  const { setEdges, setNodes } = useReactFlow();
   return (
     <div className="bg-primary/10 pb-4 px-3">
       <div className="flex flex-col gap-2">
@@ -153,7 +154,12 @@ const Condition = ({
             <DropdownMenuContent>
               <DropdownMenuItem
                 onClick={async () => {
-                  await deleteCondtion({ workflowId, targetId });
+                  const updatedWorkflow = await deleteCondtion({
+                    workflowId,
+                    targetId,
+                  });
+                  setNodes(updatedWorkflow.buildConfig?.nodes!);
+                  setEdges(updatedWorkflow.buildConfig?.edges!);
                 }}
               >
                 <Trash2 className="mr-2 h-4 w-4 text-red-500" /> Delete

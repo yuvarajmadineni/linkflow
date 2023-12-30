@@ -32,7 +32,7 @@ export async function deleteCondtion({
   const otherNodes = nodes.filter((node) => !nodeIds.includes(node.id));
   const otherEdges = edges.filter((edge) => !edgeIds.includes(edge.id));
 
-  await db
+  const [updatedWorkflow] = await db
     .update(workflows)
     .set({
       buildConfig: {
@@ -40,9 +40,12 @@ export async function deleteCondtion({
         edges: otherEdges,
       },
     })
-    .where(eq(workflows.id, workflowId));
+    .where(eq(workflows.id, workflowId))
+    .returning();
 
   revalidatePath(`/workflow/${workflowId}`);
+
+  return updatedWorkflow;
 }
 
 const getNodesAndEdgesToDelete = (

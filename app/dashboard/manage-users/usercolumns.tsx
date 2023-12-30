@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
@@ -14,18 +15,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { UserAvatar } from "@/components/user/user-avatar";
+import { useModal } from "@/hooks/use-modal-store";
 import { users } from "@/lib/schema";
 import { getUserAvatar } from "@/lib/utils";
 import { format } from "date-fns";
 import {
   ArrowUpDown,
   CircleSlash,
-  MinusCircle,
   MoreVertical,
   PauseCircle,
   Trash2,
 } from "lucide-react";
-import { useModal } from "@/hooks/use-modal-store";
 
 export type User = typeof users.$inferSelect;
 

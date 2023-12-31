@@ -6,7 +6,7 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { Edge, Node } from "reactflow";
 
-export async function deleteCondtion({
+export async function deleteCondition({
   workflowId,
   targetId,
 }: {

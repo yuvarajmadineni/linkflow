@@ -1,3 +1,4 @@
+import { PageNode, Workflow } from "@/lib/utils";
 import { Edge, Node } from "reactflow";
 import { create } from "zustand";
 
@@ -8,6 +9,8 @@ interface UndoRedoStore {
   edges: Edge[];
   futureNodes: Array<Node[]>;
   futureEdges: Array<Edge[]>;
+  pageNodes: PageNode[];
+  workflow: Workflow | null;
   undo: (
     cb?: ({ nodes, edges }: { nodes: Node[]; edges: Edge[] }) => void
   ) => void;
@@ -16,15 +19,24 @@ interface UndoRedoStore {
   ) => void;
   update: ({ nodes, edges }: { nodes: Node[]; edges: Edge[] }) => void;
   setNodesEdges: ({ nodes, edges }: { nodes: Node[]; edges: Edge[] }) => void;
+  setWorkflow: ({
+    workflow,
+    pageNodes,
+  }: {
+    workflow: Workflow;
+    pageNodes: PageNode[];
+  }) => void;
 }
 
-export const useUndoRedoNodes = create<UndoRedoStore>((set, get) => ({
+export const useWorkflow = create<UndoRedoStore>((set, get) => ({
   prevNodes: [],
   prevEdges: [],
   nodes: [],
   edges: [],
   futureEdges: [],
   futureNodes: [],
+  pageNodes: [],
+  workflow: null,
   undo: (cb?: ({ nodes, edges }: { nodes: Node[]; edges: Edge[] }) => void) => {
     if (get().prevNodes.length === 0 || get().prevEdges.length === 0) return;
 
@@ -87,4 +99,12 @@ export const useUndoRedoNodes = create<UndoRedoStore>((set, get) => ({
       futureNodes: [],
       futureEdges: [],
     }),
+
+  setWorkflow: ({
+    workflow,
+    pageNodes,
+  }: {
+    workflow: Workflow;
+    pageNodes: PageNode[];
+  }) => set({ workflow, pageNodes }),
 }));

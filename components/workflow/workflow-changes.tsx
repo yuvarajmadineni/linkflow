@@ -1,13 +1,19 @@
 "use client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useUndoRedoNodes } from "@/hooks/use-undo-redo-nodes-store";
-import { Workflow } from "@/lib/utils";
+import { useWorkflow } from "@/hooks/use-undo-redo-nodes-store";
+import { PageNode, Workflow } from "@/lib/utils";
 import { ChevronLeft, Redo, Rocket, Undo, Verified } from "lucide-react";
 import { Edge, Node, ReactFlowProvider, useReactFlow } from "reactflow";
 import { EditWorkflow } from "./edit-workflow";
 
-export function WorkflowChanges({ workflow }: { workflow: Workflow }) {
+export function WorkflowChanges({
+  workflow,
+  pageNodes,
+}: {
+  workflow: Workflow;
+  pageNodes: PageNode[];
+}) {
   let variant:
     | "default"
     | "secondary"
@@ -49,14 +55,14 @@ export function WorkflowChanges({ workflow }: { workflow: Workflow }) {
           </div>
         </div>
       </section>
-      <EditWorkflow workflow={workflow} />
+      <EditWorkflow workflow={workflow} pageNodes={pageNodes} />
     </ReactFlowProvider>
   );
 }
 
 const UndoBtn = () => {
   const { setEdges, setNodes } = useReactFlow();
-  const { undo, prevNodes, prevEdges } = useUndoRedoNodes();
+  const { undo, prevNodes, prevEdges } = useWorkflow();
 
   return (
     <Button
@@ -76,7 +82,7 @@ const UndoBtn = () => {
 };
 const RedoBtn = () => {
   const { setEdges, setNodes } = useReactFlow();
-  const { redo, futureEdges, futureNodes } = useUndoRedoNodes();
+  const { redo, futureEdges, futureNodes } = useWorkflow();
 
   return (
     <Button

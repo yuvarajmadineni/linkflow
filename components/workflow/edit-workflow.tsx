@@ -6,14 +6,13 @@ import ReactFlow, {
   MiniMap,
   useEdgesState,
   useNodesState,
-  useReactFlow,
 } from "reactflow";
 import { Layout } from "./force-layout";
 
-import { Workflow } from "@/lib/utils";
+import { PageNode, Workflow } from "@/lib/utils";
 import "reactflow/dist/style.css";
 import { nodeTypes } from "./nodes/types";
-import { useUndoRedoNodes } from "@/hooks/use-undo-redo-nodes-store";
+import { useWorkflow } from "@/hooks/use-undo-redo-nodes-store";
 import { useEffect } from "react";
 
 const defaultEdgeOptions = {
@@ -22,17 +21,24 @@ const defaultEdgeOptions = {
   pathOptions: { offset: 5 },
 };
 
-export function EditWorkflow({ workflow }: { workflow: Workflow }) {
+export function EditWorkflow({
+  workflow,
+  pageNodes,
+}: {
+  workflow: Workflow;
+  pageNodes: PageNode[];
+}) {
   const [nodes, __, onNodesChange] = useNodesState(
     workflow.buildConfig?.nodes!
   );
   const [edges, _, onEdgesChange] = useEdgesState(workflow.buildConfig?.edges!);
 
-  const { setNodesEdges } = useUndoRedoNodes();
+  const { setNodesEdges, setWorkflow } = useWorkflow();
 
   useEffect(() => {
     setNodesEdges(workflow.buildConfig!);
-  }, [setNodesEdges, workflow]);
+    setWorkflow({ pageNodes, workflow });
+  }, [pageNodes, setNodesEdges, setWorkflow, workflow]);
 
   return (
     <div className="h-[85vh] w-full">

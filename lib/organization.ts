@@ -1,8 +1,15 @@
 import { auth, currentUser } from "@clerk/nextjs";
 import { db } from "./db";
-import { groups, organization, userToGroups, users, workflows } from "./schema";
+import {
+  groups,
+  organization,
+  pageNode,
+  userToGroups,
+  users,
+  workflows,
+} from "./schema";
 import { and, eq, inArray, like, sql } from "drizzle-orm";
-import { Group, User, UserGroup } from "./utils";
+import { Group, PageNode, User, UserGroup, Workflow } from "./utils";
 
 export const createOrganization = async (
   organizationId: string,
@@ -146,10 +153,23 @@ export const getWorkflows = async () => {
 };
 
 export const getWorkflowById = async (workflowId: string) => {
-  const [workflow] = await db
+  let workflow = await db
     .select()
     .from(workflows)
-    .where(eq(workflows.id, workflowId));
+    .where(eq(workflows.id, workflowId))
+    .innerJoin(pageNode, eq(pageNode.workflowId, workflowId))
+    .then((payload) => {
+      const mergedWorkflow: { workflow: Workflow; pageNodes: PageNode[] } = {
+        workflow: {} as Workflow,
+        pageNodes: [],
+      };
+      payload.forEach((data) => {
+        mergedWorkflow.workflow = data.workflows;
+        mergedWorkflow.pageNodes.push(data.pagenode);
+      });
 
-  return workflow;
+      return mergedWorkflow;
+    });
+
+  return { workflow: workflow.workflow, pageNodes: workflow.pageNodes };
 };

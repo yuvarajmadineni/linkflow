@@ -6,7 +6,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "@/components/ui/use-toast";
-import { useUndoRedoNodes } from "@/hooks/use-undo-redo-nodes-store";
+import { useWorkflow } from "@/hooks/use-undo-redo-nodes-store";
 import { DropdownMenuLabel } from "@radix-ui/react-dropdown-menu";
 import { GitBranch, PlusCircle, Smartphone } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
@@ -14,7 +14,7 @@ import { Handle, NodeProps, Position, useReactFlow } from "reactflow";
 
 export function PlaceholderNode(props: NodeProps) {
   const params = useParams();
-  const { update, nodes, edges } = useUndoRedoNodes();
+  const { update, nodes, edges } = useWorkflow();
   const { setNodes, setEdges } = useReactFlow();
   const router = useRouter();
 

@@ -1,3 +1,18 @@
+import * as React from "react";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Accordion,
   AccordionContent,
@@ -29,7 +44,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { toast } from "@/components/ui/use-toast";
-import { useUndoRedoNodes } from "@/hooks/use-undo-redo-nodes-store";
+import { useWorkflow } from "@/hooks/use-undo-redo-nodes-store";
 import {
   GitBranch,
   Link,
@@ -40,13 +55,32 @@ import {
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { Handle, NodeProps, Position, useReactFlow } from "reactflow";
-import { deleteCondtion } from "../_actions/delete-condition";
+import { deleteCondition } from "../_actions/delete-condition";
+import {
+  getAllPageNodeVariables,
+  getAllParentNodesForNode,
+} from "@/lib/workflow";
+import { Badge } from "@/components/ui/badge";
 
 export function BranchNode(props: NodeProps) {
   const params = useParams();
-  const { nodes, edges, update } = useUndoRedoNodes();
+  const { nodes, edges, update, pageNodes } = useWorkflow();
   const { setNodes, setEdges } = useReactFlow();
   const [isLoading, setIsLoading] = useState(false);
+
+  const allParentNodes = getAllParentNodesForNode(props.id, nodes, edges).map(
+    (n) => n.id
+  );
+  const allParentPageNodes = pageNodes.filter((n) =>
+    allParentNodes.includes(n.id)
+  );
+
+  let allVariables: string[] = [];
+  allParentPageNodes.forEach((page) => {
+    const variables = getAllPageNodeVariables(page);
+    allVariables = allVariables.concat(variables);
+  });
+
   async function addCondition() {
     setIsLoading(true);
     const res = await fetch(`/api/organization/workflow/${params.id}`, {
@@ -104,11 +138,20 @@ export function BranchNode(props: NodeProps) {
               <Accordion type="single" collapsible>
                 <AccordionItem value="item-1">
                   <AccordionTrigger>
-                    {"{i}"} 3 variables available
+                    {"{i}"} {allVariables.length} variables available
                   </AccordionTrigger>
-                  <AccordionContent>
-                    Simply drag variables into the required forms. You can also
-                    begin typing to insert a variable with autocomplete
+                  <AccordionContent className="flex flex-col gap-3">
+                    <p>
+                      Simply drag variables into the required forms. You can
+                      also begin typing to insert a variable with autocomplete
+                    </p>
+                    <div className="py-4 rounded-md bg-primary/10 px-2 flex gap-2">
+                      {allVariables.map((value, i) => (
+                        <Badge key={i} variant="lightsecondary">
+                          {value}
+                        </Badge>
+                      ))}
+                    </div>
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
@@ -117,6 +160,7 @@ export function BranchNode(props: NodeProps) {
                   key={c.id}
                   targetId={c.id}
                   workflowId={params.id as string}
+                  variables={allVariables}
                 />
               ))}
             </div>
@@ -135,11 +179,15 @@ export function BranchNode(props: NodeProps) {
 const Condition = ({
   workflowId,
   targetId,
+  variables,
 }: {
   workflowId: string;
   targetId: string;
+  variables: string[];
 }) => {
   const { setEdges, setNodes } = useReactFlow();
+  const variableFields = variables.map((v) => ({ label: v, value: v }));
+
   return (
     <div className="bg-primary/10 pb-4 px-3">
       <div className="flex flex-col gap-2">
@@ -154,7 +202,7 @@ const Condition = ({
             <DropdownMenuContent>
               <DropdownMenuItem
                 onClick={async () => {
-                  const updatedWorkflow = await deleteCondtion({
+                  const updatedWorkflow = await deleteCondition({
                     workflowId,
                     targetId,
                   });
@@ -168,7 +216,7 @@ const Condition = ({
           </DropdownMenu>
         </div>
         <div className="flex gap-4 items-center">
-          <Input />
+          <SelectVariables variables={variableFields} />
           <Button variant="ghost">
             <Link className="h-4 w-4" />
           </Button>
@@ -189,3 +237,61 @@ const Condition = ({
     </div>
   );
 };
+
+export function SelectVariables({
+  variables,
+}: {
+  variables: {
+    label: string;
+    value: string;
+  }[];
+}) {
+  const [open, setOpen] = React.useState(false);
+  const [value, setValue] = React.useState("");
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between"
+        >
+          {value
+            ? variables.find((variable) => variable.value === value)?.label
+            : "Select variable"}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-full p-0">
+        <Command>
+          <CommandInput placeholder="Search variable" />
+          <CommandEmpty>No variable found.</CommandEmpty>
+          <CommandGroup>
+            {variables.map((variable) => (
+              <CommandItem
+                key={variable.value}
+                value={variable.value}
+                onSelect={(currentValue) => {
+                  const updatedValue =
+                    currentValue === value ? "" : currentValue;
+                  setValue(updatedValue);
+                  setOpen(false);
+                }}
+              >
+                <Check
+                  className={cn(
+                    "mr-2 h-4 w-4",
+                    value === variable.value ? "opacity-100" : "opacity-0"
+                  )}
+                />
+                {variable.label}
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}

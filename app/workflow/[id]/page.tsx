@@ -7,7 +7,7 @@ export default async function WorkflowEditor({
 }: {
   params: { id: string };
 }) {
-  const workflow = await getWorkflowById(params.id);
+  const { workflow, pageNodes } = await getWorkflowById(params.id);
   return (
     <div>
       <nav className="bg-secondary py-4 px-4 w-full flex justify-between items-center">
@@ -23,7 +23,7 @@ export default async function WorkflowEditor({
           </ul>
         </div>
       </nav>
-      <WorkflowChanges workflow={workflow} />
+      <WorkflowChanges workflow={workflow} pageNodes={pageNodes} />
     </div>
   );
 }

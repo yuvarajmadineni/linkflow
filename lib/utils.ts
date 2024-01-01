@@ -1,6 +1,14 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { groups, pageNode, userToGroups, users, workflows } from "./schema";
+import {
+  branchNode,
+  condition,
+  groups,
+  pageNode,
+  userToGroups,
+  users,
+  workflows,
+} from "./schema";
 import { md5 } from "js-md5";
 
 export function cn(...inputs: ClassValue[]) {
@@ -11,7 +19,9 @@ export type User = typeof users.$inferSelect;
 export type Group = typeof groups.$inferSelect;
 export type UserGroup = typeof userToGroups.$inferSelect;
 export type Workflow = typeof workflows.$inferSelect;
-export type PageNode = typeof pageNode.$inferSelect
+export type PageNode = typeof pageNode.$inferSelect;
+export type Condition = typeof condition.$inferSelect;
+export type BranchNode = typeof branchNode.$inferSelect;
 
 export function getUserAvatar(email: string) {
   return `http://www.gravatar.com/avatar/${md5(email)}.jpg?d=retro`;

@@ -9,7 +9,7 @@ import ReactFlow, {
 } from "reactflow";
 import { Layout } from "./force-layout";
 
-import { PageNode, Workflow } from "@/lib/utils";
+import { Condition, PageNode, Workflow } from "@/lib/utils";
 import "reactflow/dist/style.css";
 import { nodeTypes } from "./nodes/types";
 import { useWorkflow } from "@/hooks/use-undo-redo-nodes-store";
@@ -24,9 +24,11 @@ const defaultEdgeOptions = {
 export function EditWorkflow({
   workflow,
   pageNodes,
+  conditions,
 }: {
   workflow: Workflow;
   pageNodes: PageNode[];
+  conditions: Condition[];
 }) {
   const [nodes, __, onNodesChange] = useNodesState(
     workflow.buildConfig?.nodes!
@@ -37,7 +39,7 @@ export function EditWorkflow({
 
   useEffect(() => {
     setNodesEdges(workflow.buildConfig!);
-    setWorkflow({ pageNodes, workflow });
+    setWorkflow({ pageNodes, workflow, conditions });
   }, [pageNodes, setNodesEdges, setWorkflow, workflow]);
 
   return (

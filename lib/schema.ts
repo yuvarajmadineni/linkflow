@@ -105,6 +105,8 @@ export const pageNode = pgTable("pagenode", {
   workflowId: uuid("workflow_id")
     .notNull()
     .references(() => workflows.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 export const branchNode = pgTable("branchnode", {
@@ -114,16 +116,21 @@ export const branchNode = pgTable("branchnode", {
   workflowId: uuid("workflow_id")
     .notNull()
     .references(() => workflows.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 export const condition = pgTable("condition", {
   id: uuid("id").primaryKey().defaultRandom(),
   branchNodeId: uuid("branch_node_id")
     .notNull()
-    .references(() => branchNode.id),
-  lhs: text("lhs").notNull(),
-  rhs: text("rhs").notNull(),
-  operator: text("operator").notNull(),
+    .references(() => branchNode.id, { onDelete: "cascade" }),
+  lhs: text("lhs"),
+  rhs: text("rhs"),
+  operator: text("operator"),
+  edgeId: uuid("edge_id").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 export const userRelations = relations(users, ({ one }) => ({

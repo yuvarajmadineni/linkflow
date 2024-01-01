@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Condition, cn } from "@/lib/utils";
 import {
   Command,
   CommandEmpty,
@@ -33,6 +33,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import {
   Sheet,
@@ -52,7 +53,7 @@ import {
   PlusCircle,
   Trash2,
 } from "lucide-react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Handle, NodeProps, Position, useReactFlow } from "reactflow";
 import { deleteCondition } from "../_actions/delete-condition";
@@ -61,12 +62,27 @@ import {
   getAllParentNodesForNode,
 } from "@/lib/workflow";
 import { Badge } from "@/components/ui/badge";
+import { SubmitHandler, useForm } from "react-hook-form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { updateCondition } from "../_actions/update-condition";
 
 export function BranchNode(props: NodeProps) {
   const params = useParams();
-  const { nodes, edges, update, pageNodes } = useWorkflow();
+  const { nodes, edges, update, pageNodes, conditions } = useWorkflow();
+  const branchNodeConditions = conditions.filter(
+    (c) => c.branchNodeId === props.id
+  );
   const { setNodes, setEdges } = useReactFlow();
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const allParentNodes = getAllParentNodesForNode(props.id, nodes, edges).map(
     (n) => n.id
@@ -99,22 +115,17 @@ export function BranchNode(props: NodeProps) {
       setNodes(responseData.data.buildConfig.nodes);
       setEdges(responseData.data.buildConfig.edges);
       update(responseData.data.buildConfig);
+      router.refresh();
     } else {
       toast({ title: `Something went wrong while adding a condition` });
     }
     setIsLoading(false);
   }
 
-  const placeholder = nodes.find((node) => node.type === "placeholderNode");
-
-  const conditionEdges = edges.filter(
-    (edge) => edge.source === props.id && edge.target !== placeholder?.id
-  );
-
   return (
     <>
       <Sheet>
-        <SheetTrigger>
+        <SheetTrigger onClick={router.refresh}>
           <Handle type="target" position={Position.Top} />
           <div className="rounded-full bg-secondary flex items-center gap-2 px-4 py-2 w-44 max-w-xl">
             <GitBranch className="h-4 w-4" />
@@ -155,12 +166,13 @@ export function BranchNode(props: NodeProps) {
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
-              {conditionEdges.map((c) => (
+              {branchNodeConditions.map((c) => (
                 <Condition
                   key={c.id}
-                  targetId={c.id}
+                  targetId={c.edgeId}
                   workflowId={params.id as string}
                   variables={allVariables}
+                  condition={c}
                 />
               ))}
             </div>
@@ -180,74 +192,202 @@ const Condition = ({
   workflowId,
   targetId,
   variables,
+  condition,
 }: {
   workflowId: string;
   targetId: string;
   variables: string[];
+  condition: Condition;
 }) => {
   const { setEdges, setNodes } = useReactFlow();
   const variableFields = variables.map((v) => ({ label: v, value: v }));
+  const params = useParams();
+  const operatorOptions = [
+    "equals",
+    "not equals",
+    "greater than",
+    "less than",
+    "greater than or equals to",
+    "less than or equals to",
+    "starts with",
+  ];
+
+  const schema = z.object({
+    lhs: z
+      .string({ required_error: "variable field is required" })
+      .refine((v) => variables.includes(v), {
+        message: "Please select a variable from the list",
+      }),
+    rhs: z
+      .string({ required_error: "Output check is required" })
+      .min(1, { message: "Please add the output condition check" }),
+    operator: z.enum(
+      [
+        "equals",
+        "not equals",
+        "greater than",
+        "less than",
+        "greater than or equals to",
+        "less than or equals to",
+        "starts with",
+      ],
+      {
+        errorMap: () => {
+          return {
+            message: "Please select the condition from given condtions",
+          };
+        },
+      }
+    ),
+  });
+
+  type FormValues = z.infer<typeof schema>;
+
+  const form = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      lhs: condition.lhs || "",
+      rhs: condition.rhs || "",
+      operator: (condition.operator || "") as any,
+    },
+  });
+
+  const lhsValue = form.getValues("lhs");
+  const lhsErrorMsg = form.formState.errors.lhs?.message;
+
+  const saveConditionChanges: SubmitHandler<FormValues> = async ({
+    lhs,
+    rhs,
+    operator,
+  }) => {
+    try {
+      await updateCondition({
+        conditionId: condition.id,
+        lhs,
+        rhs,
+        operator,
+        workflowId: params.id as string,
+      });
+      toast({ title: "Changes saved sucessfully" });
+    } catch (e) {
+      toast({ title: "Failed to save the changes" });
+    }
+  };
 
   return (
-    <div className="bg-primary/10 pb-4 px-3">
-      <div className="flex flex-col gap-2">
-        <div className="flex justify-between items-center">
-          <Label>IF</Label>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(saveConditionChanges)}>
+        <div className="bg-primary/10 pb-4 px-3 flex flex-col gap-2">
+          <div className="flex flex-col gap-2">
+            <div className="flex justify-between items-center">
+              <Label>IF</Label>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem
+                    onClick={async () => {
+                      try {
+                        const updatedWorkflow = await deleteCondition({
+                          workflowId,
+                          targetId,
+                          conditionId: condition.id,
+                        });
+                        setNodes(updatedWorkflow.buildConfig?.nodes!);
+                        setEdges(updatedWorkflow.buildConfig?.edges!);
+                        toast({ title: "Successfully deleted the condition" });
+                      } catch (e) {
+                        toast({ title: "Failed to delete the condition" });
+                      }
+                    }}
+                  >
+                    <Trash2 className="mr-2 h-4 w-4 text-red-500" /> Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            <div className="flex gap-4 items-center">
+              <div className="w-full">
+                <SelectVariables variables={variableFields} lhs={lhsValue} />
+                {lhsErrorMsg && (
+                  <p className="text-destructive text-sm font-medium">
+                    {lhsErrorMsg}
+                  </p>
+                )}
+              </div>
               <Button variant="ghost">
-                <MoreVertical className="h-4 w-4" />
+                <Link className="h-4 w-4" />
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem
-                onClick={async () => {
-                  const updatedWorkflow = await deleteCondition({
-                    workflowId,
-                    targetId,
-                  });
-                  setNodes(updatedWorkflow.buildConfig?.nodes!);
-                  setEdges(updatedWorkflow.buildConfig?.edges!);
-                }}
-              >
-                <Trash2 className="mr-2 h-4 w-4 text-red-500" /> Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </div>
+            <FormField
+              name="operator"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder={"Select the condtion"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {operatorOptions.map((op) => (
+                          <SelectItem key={op} value={op}>
+                            {op}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex gap-4 items-center">
+              <FormField
+                name="rhs"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormControl>
+                      <Input {...field} placeholder="Select output condition" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button variant="ghost">
+                <Link className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          <div className="flex justify-end mt-4">
+            <Button
+              className="px-2"
+              type="submit"
+              disabled={form.formState.isSubmitting}
+            >
+              Save changes
+            </Button>
+          </div>
         </div>
-        <div className="flex gap-4 items-center">
-          <SelectVariables variables={variableFields} />
-          <Button variant="ghost">
-            <Link className="h-4 w-4" />
-          </Button>
-        </div>
-        <Select>
-          <SelectTrigger>Select a condition</SelectTrigger>
-          <SelectContent>
-            <SelectItem value="equals">equals</SelectItem>
-          </SelectContent>
-        </Select>
-        <div className="flex gap-4 items-center">
-          <Input />
-          <Button variant="ghost">
-            <Link className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-    </div>
+      </form>
+    </Form>
   );
 };
 
 export function SelectVariables({
   variables,
+  lhs,
 }: {
   variables: {
     label: string;
     value: string;
   }[];
+  lhs: string;
 }) {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState("");
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -258,39 +398,48 @@ export function SelectVariables({
           aria-expanded={open}
           className="w-full justify-between"
         >
-          {value
-            ? variables.find((variable) => variable.value === value)?.label
+          {lhs
+            ? variables.find((variable) => variable.value === lhs)?.label
             : "Select variable"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
-        <Command>
-          <CommandInput placeholder="Search variable" />
-          <CommandEmpty>No variable found.</CommandEmpty>
-          <CommandGroup>
-            {variables.map((variable) => (
-              <CommandItem
-                key={variable.value}
-                value={variable.value}
-                onSelect={(currentValue) => {
-                  const updatedValue =
-                    currentValue === value ? "" : currentValue;
-                  setValue(updatedValue);
-                  setOpen(false);
-                }}
-              >
-                <Check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    value === variable.value ? "opacity-100" : "opacity-0"
-                  )}
-                />
-                {variable.label}
-              </CommandItem>
-            ))}
-          </CommandGroup>
-        </Command>
+        <FormField
+          name="lhs"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Command onValueChange={field.onChange}>
+                  <CommandInput placeholder="Search variable" />
+                  <CommandEmpty>No variable found.</CommandEmpty>
+                  <CommandGroup>
+                    {variables.map((variable) => (
+                      <CommandItem
+                        key={variable.value}
+                        value={variable.value}
+                        onSelect={(e) => {
+                          field.onChange(e);
+                          setOpen(false);
+                        }}
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            field.value === variable.value
+                              ? "opacity-100"
+                              : "opacity-0"
+                          )}
+                        />
+                        {variable.label}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </Command>
+              </FormControl>
+            </FormItem>
+          )}
+        />
       </PopoverContent>
     </Popover>
   );

@@ -1,4 +1,4 @@
-import { PageNode, Workflow } from "@/lib/utils";
+import { Condition, PageNode, Workflow } from "@/lib/utils";
 import { Edge, Node } from "reactflow";
 import { create } from "zustand";
 
@@ -11,6 +11,7 @@ interface UndoRedoStore {
   futureEdges: Array<Edge[]>;
   pageNodes: PageNode[];
   workflow: Workflow | null;
+  conditions: Condition[];
   undo: (
     cb?: ({ nodes, edges }: { nodes: Node[]; edges: Edge[] }) => void
   ) => void;
@@ -25,6 +26,7 @@ interface UndoRedoStore {
   }: {
     workflow: Workflow;
     pageNodes: PageNode[];
+    conditions: Condition[];
   }) => void;
 }
 
@@ -37,6 +39,7 @@ export const useWorkflow = create<UndoRedoStore>((set, get) => ({
   futureNodes: [],
   pageNodes: [],
   workflow: null,
+  conditions: [],
   undo: (cb?: ({ nodes, edges }: { nodes: Node[]; edges: Edge[] }) => void) => {
     if (get().prevNodes.length === 0 || get().prevEdges.length === 0) return;
 
@@ -103,8 +106,10 @@ export const useWorkflow = create<UndoRedoStore>((set, get) => ({
   setWorkflow: ({
     workflow,
     pageNodes,
+    conditions,
   }: {
     workflow: Workflow;
     pageNodes: PageNode[];
-  }) => set({ workflow, pageNodes }),
+    conditions: Condition[];
+  }) => set({ workflow, pageNodes, conditions }),
 }));

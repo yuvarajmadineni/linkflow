@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { workflows } from "@/lib/schema";
+import { condition, workflows } from "@/lib/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { Edge, Node } from "reactflow";
@@ -9,9 +9,11 @@ import { Edge, Node } from "reactflow";
 export async function deleteCondition({
   workflowId,
   targetId,
+  conditionId,
 }: {
   workflowId: string;
   targetId: string;
+  conditionId: string;
 }) {
   const [workflow] = await db
     .select()
@@ -32,16 +34,21 @@ export async function deleteCondition({
   const otherNodes = nodes.filter((node) => !nodeIds.includes(node.id));
   const otherEdges = edges.filter((edge) => !edgeIds.includes(edge.id));
 
-  const [updatedWorkflow] = await db
-    .update(workflows)
-    .set({
-      buildConfig: {
-        nodes: otherNodes,
-        edges: otherEdges,
-      },
-    })
-    .where(eq(workflows.id, workflowId))
-    .returning();
+  const [updatedWorkflow] = await db.transaction(async (tx) => {
+    const workflow = await tx
+      .update(workflows)
+      .set({
+        buildConfig: {
+          nodes: otherNodes,
+          edges: otherEdges,
+        },
+      })
+      .where(eq(workflows.id, workflowId))
+      .returning();
+
+    await db.delete(condition).where(eq(condition.id, conditionId));
+    return workflow;
+  });
 
   revalidatePath(`/workflow/${workflowId}`);
 

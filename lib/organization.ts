@@ -1,6 +1,9 @@
 import { auth, currentUser } from "@clerk/nextjs";
+import { and, eq, like } from "drizzle-orm";
 import { db } from "./db";
 import {
+  branchNode,
+  condition,
   groups,
   organization,
   pageNode,
@@ -8,8 +11,7 @@ import {
   users,
   workflows,
 } from "./schema";
-import { and, eq, inArray, like, sql } from "drizzle-orm";
-import { Group, PageNode, User, UserGroup, Workflow } from "./utils";
+import { Group, PageNode, User, Workflow } from "./utils";
 
 export const createOrganization = async (
   organizationId: string,
@@ -157,19 +159,34 @@ export const getWorkflowById = async (workflowId: string) => {
     .select()
     .from(workflows)
     .where(eq(workflows.id, workflowId))
-    .innerJoin(pageNode, eq(pageNode.workflowId, workflowId))
+    .leftJoin(pageNode, eq(pageNode.workflowId, workflowId))
     .then((payload) => {
-      const mergedWorkflow: { workflow: Workflow; pageNodes: PageNode[] } = {
+      const mergedWorkflow: {
+        workflow: Workflow;
+        pageNodes: PageNode[];
+      } = {
         workflow: {} as Workflow,
         pageNodes: [],
       };
       payload.forEach((data) => {
         mergedWorkflow.workflow = data.workflows;
-        mergedWorkflow.pageNodes.push(data.pagenode);
+        if (data.pagenode) mergedWorkflow.pageNodes.push(data.pagenode);
       });
 
       return mergedWorkflow;
     });
 
-  return { workflow: workflow.workflow, pageNodes: workflow.pageNodes };
+  let branchNodeConditions = await db
+    .select()
+    .from(branchNode)
+    .innerJoin(condition, eq(condition.branchNodeId, branchNode.id))
+    .where(eq(branchNode.workflowId, workflowId))
+    .orderBy(condition.createdAt)
+    .then((payload) => payload.map((p) => p.condition));
+
+  return {
+    workflow: workflow.workflow,
+    pageNodes: workflow.pageNodes,
+    conditions: branchNodeConditions,
+  };
 };

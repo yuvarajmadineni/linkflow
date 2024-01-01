@@ -9,14 +9,13 @@ import { toast } from "@/components/ui/use-toast";
 import { useWorkflow } from "@/hooks/use-undo-redo-nodes-store";
 import { DropdownMenuLabel } from "@radix-ui/react-dropdown-menu";
 import { GitBranch, PlusCircle, Smartphone } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { Handle, NodeProps, Position, useReactFlow } from "reactflow";
 
 export function PlaceholderNode(props: NodeProps) {
   const params = useParams();
   const { update, nodes, edges } = useWorkflow();
   const { setNodes, setEdges } = useReactFlow();
-  const router = useRouter();
 
   const handleAddNode = async (type: "pageNode" | "branchNode") => {
     const res = await fetch(`/api/organization/workflow/${params.id}`, {
@@ -39,7 +38,6 @@ export function PlaceholderNode(props: NodeProps) {
       setNodes(responseData.data.buildConfig.nodes);
       setEdges(responseData.data.buildConfig.edges);
       update(responseData.data.buildConfig);
-      router.refresh();
     } else {
       toast({ title: `Something went wrong while creating ${type}` });
     }

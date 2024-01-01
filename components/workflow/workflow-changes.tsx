@@ -2,7 +2,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useWorkflow } from "@/hooks/use-undo-redo-nodes-store";
-import { PageNode, Workflow } from "@/lib/utils";
+import { Condition, PageNode, Workflow } from "@/lib/utils";
 import { ChevronLeft, Redo, Rocket, Undo, Verified } from "lucide-react";
 import { Edge, Node, ReactFlowProvider, useReactFlow } from "reactflow";
 import { EditWorkflow } from "./edit-workflow";
@@ -10,9 +10,11 @@ import { EditWorkflow } from "./edit-workflow";
 export function WorkflowChanges({
   workflow,
   pageNodes,
+  conditions,
 }: {
   workflow: Workflow;
   pageNodes: PageNode[];
+  conditions: Condition[];
 }) {
   let variant:
     | "default"
@@ -55,7 +57,11 @@ export function WorkflowChanges({
           </div>
         </div>
       </section>
-      <EditWorkflow workflow={workflow} pageNodes={pageNodes} />
+      <EditWorkflow
+        workflow={workflow}
+        pageNodes={pageNodes}
+        conditions={conditions}
+      />
     </ReactFlowProvider>
   );
 }

@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { pageNode, workflows } from "@/lib/schema";
+import { branchNode, condition, pageNode, workflows } from "@/lib/schema";
 import { randomUUID } from "crypto";
 import { eq } from "drizzle-orm";
 import { Edge, Node } from "reactflow";
@@ -23,6 +23,11 @@ export async function PATCH(
   const statusSchema = z.enum(["published", "draft", "archived"]);
 
   const typeSchema = z.enum(["pageNode", "branchNode"]);
+
+  const parentEdge = presentEdges.find((e: Edge) => e.target === parentId);
+  const parentNode = presentNodes.find(
+    (n: Node) => n.id === parentEdge?.source
+  );
 
   const verifiedStatus = statusSchema.safeParse(status);
   const verifiedNodeType = typeSchema.safeParse(nodeType);
@@ -70,10 +75,13 @@ export async function PATCH(
 
     let isFirstNode = false;
 
+    let edgeId = randomUUID() as string;
+
     const updateEdges = presentEdges.map((edge: Edge) => {
       if (nodeId && edge.source === nodeId && edge.target === placeholder?.id) {
         edge.target = nodeTypeId;
         isFirstNode = true;
+        edgeId = edge.id;
       } else if (edge.target === parentId) {
         edge.target = nodeTypeId;
       }
@@ -95,7 +103,7 @@ export async function PATCH(
         type: "placeholderNode",
       });
       newEdges = [
-        { id: randomUUID(), source: nodeId, target: nodeTypeId },
+        { id: edgeId, source: nodeId, target: nodeTypeId },
         { id: randomUUID(), source: nodeTypeId, target: placeholderId },
       ];
     }
@@ -118,8 +126,23 @@ export async function PATCH(
       if (verifiedNodeType.data === "pageNode") {
         await tx
           .insert(pageNode)
-          .values({ workflowId: workflow.id, id: nodeTypeId })
-          .returning();
+          .values({ workflowId: workflow.id, id: nodeTypeId });
+      }
+
+      if (verifiedNodeType.data === "branchNode") {
+        await tx
+          .insert(branchNode)
+          .values({ workflowId: workflow.id, id: nodeTypeId });
+      }
+
+      if (nodeId) {
+        await db.insert(condition).values({ branchNodeId: nodeId, edgeId });
+      }
+
+      if (parentNode?.type === "branchNode") {
+        await db
+          .insert(condition)
+          .values({ branchNodeId: parentNode.id, edgeId: parentEdge.id });
       }
       return workflowUpdated;
     });

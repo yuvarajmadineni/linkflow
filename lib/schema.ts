@@ -107,6 +107,25 @@ export const pageNode = pgTable("pagenode", {
     .references(() => workflows.id, { onDelete: "cascade" }),
 });
 
+export const branchNode = pgTable("branchnode", {
+  id: uuid("id").primaryKey(),
+  title: text("title"),
+
+  workflowId: uuid("workflow_id")
+    .notNull()
+    .references(() => workflows.id, { onDelete: "cascade" }),
+});
+
+export const condition = pgTable("condition", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  branchNodeId: uuid("branch_node_id")
+    .notNull()
+    .references(() => branchNode.id),
+  lhs: text("lhs").notNull(),
+  rhs: text("rhs").notNull(),
+  operator: text("operator").notNull(),
+});
+
 export const userRelations = relations(users, ({ one }) => ({
   organization: one(organization, {
     fields: [users.organizationId],

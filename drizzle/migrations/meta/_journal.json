@@ -211,6 +211,13 @@
       "when": 1702227268010,
       "tag": "0030_loud_madelyne_pryor",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "5",
+      "when": 1704097023408,
+      "tag": "0031_new_nightcrawler",
+      "breakpoints": true
     }
   ]
 }

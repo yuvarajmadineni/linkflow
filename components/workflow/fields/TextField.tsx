@@ -19,6 +19,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const type: ElementsType = "TextField";
 
@@ -28,7 +35,10 @@ const extraAttributes = {
   required: false,
   placeholder: "",
   value: "",
+  type: "",
 };
+
+const options = ["number", "string", "boolean"];
 
 const propertiesSchema = z.object({
   label: z.string().min(2).max(50),
@@ -36,6 +46,7 @@ const propertiesSchema = z.object({
   required: z.boolean().default(false),
   placeholder: z.string().max(50),
   value: z.string().trim().min(1),
+  type: z.enum(["number", "string", "boolean"]),
 });
 
 type PropertiesSchemaType = z.infer<typeof propertiesSchema>;
@@ -109,7 +120,7 @@ function PropertiesComponent({
 }) {
   const { updateElement } = useDesigner();
   const element = elementInstance as CustomInstance;
-  const { label, required, helperText, placeholder, value } =
+  const { label, required, helperText, placeholder, value, type } =
     element.extraAttributes;
   const form = useForm({
     resolver: zodResolver(propertiesSchema),
@@ -120,6 +131,7 @@ function PropertiesComponent({
       helperText,
       placeholder,
       value,
+      type: type as any,
     },
   });
 
@@ -183,6 +195,27 @@ function PropertiesComponent({
             </FormItem>
           )}
         />
+        <FormField
+          name="type"
+          render={({ field }) => (
+            <FormItem>
+              <Select {...field} onValueChange={field.onChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Please select the type of variable" />
+                </SelectTrigger>
+                <SelectContent>
+                  {options?.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <FormField
           control={form.control}
           name="placeholder"

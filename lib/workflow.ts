@@ -18,12 +18,17 @@ export const getAllParentNodesForNode = (
 
 export const getAllPageNodeVariables = (pageNode: PageNode) => {
   let variables: string[] = [];
+  let types: string[] = [];
+  let variableTypes: Record<string, string> = {};
   pageNode.elements?.forEach((e) => {
     const value = e.extraAttributes?.value;
+    const type = e.extraAttributes?.type;
     if (value) {
       variables.push(value);
+      variableTypes[value] = type;
+      types.push(type);
     }
   });
 
-  return variables;
+  return { variables, types, variableTypes };
 };

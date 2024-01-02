@@ -92,9 +92,11 @@ export function BranchNode(props: NodeProps) {
   );
 
   let allVariables: string[] = [];
+  let allVariableTypes: Record<string, string> = {};
   allParentPageNodes.forEach((page) => {
-    const variables = getAllPageNodeVariables(page);
+    const { variables, variableTypes } = getAllPageNodeVariables(page);
     allVariables = allVariables.concat(variables);
+    allVariableTypes = { ...allVariableTypes, ...variableTypes };
   });
 
   async function addCondition() {
@@ -173,6 +175,7 @@ export function BranchNode(props: NodeProps) {
                   workflowId={params.id as string}
                   variables={allVariables}
                   condition={c}
+                  variableTypes={allVariableTypes}
                 />
               ))}
             </div>
@@ -193,10 +196,12 @@ const Condition = ({
   targetId,
   variables,
   condition,
+  variableTypes,
 }: {
   workflowId: string;
   targetId: string;
   variables: string[];
+  variableTypes: Record<string, string>;
   condition: Condition;
 }) => {
   const { setEdges, setNodes } = useReactFlow();
@@ -212,34 +217,63 @@ const Condition = ({
     "starts with",
   ];
 
-  const schema = z.object({
-    lhs: z
-      .string({ required_error: "variable field is required" })
-      .refine((v) => variables.includes(v), {
-        message: "Please select a variable from the list",
-      }),
-    rhs: z
-      .string({ required_error: "Output check is required" })
-      .min(1, { message: "Please add the output condition check" }),
-    operator: z.enum(
-      [
-        "equals",
-        "not equals",
-        "greater than",
-        "less than",
-        "greater than or equals to",
-        "less than or equals to",
-        "starts with",
-      ],
+  const schema = z
+    .object({
+      lhs: z
+        .string({ required_error: "variable field is required" })
+        .refine((v) => variables.includes(v), {
+          message: "Please select a variable from the list",
+        }),
+      rhs: z
+        .string({ required_error: "Output check is required" })
+        .min(1, { message: "Please add the output condition check" }),
+      operator: z.enum(
+        [
+          "equals",
+          "not equals",
+          "greater than",
+          "less than",
+          "greater than or equals to",
+          "less than or equals to",
+          "starts with",
+        ],
+        {
+          errorMap: () => {
+            return {
+              message: "Please select the condition from given condtions",
+            };
+          },
+        }
+      ),
+    })
+    .refine(
+      (arg) => {
+        const { lhs, rhs } = arg;
+        const type = variableTypes[lhs];
+        const getVarialbeTypes = (type: string) => {
+          switch (type) {
+            case "number":
+              return z.coerce.number();
+            case "boolean":
+              return z.boolean();
+            case "string":
+              return z.string().trim().min(1);
+            default:
+              return z.string().trim().min(1);
+          }
+        };
+        const schema = getVarialbeTypes(type);
+        const validatedRhs = schema.safeParse(rhs);
+        if (!validatedRhs.success) {
+          return false;
+        }
+        return true;
+      },
       {
-        errorMap: () => {
-          return {
-            message: "Please select the condition from given condtions",
-          };
-        },
+        message: `Invalid Data type.Please use valid type which you have defined`,
+        path: ["rhs"],
       }
-    ),
-  });
+    );
 
   type FormValues = z.infer<typeof schema>;
 

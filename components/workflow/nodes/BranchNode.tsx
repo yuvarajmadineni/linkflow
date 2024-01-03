@@ -62,7 +62,7 @@ import {
   getAllParentNodesForNode,
 } from "@/lib/workflow";
 import { Badge } from "@/components/ui/badge";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler, UseFormReturn, useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
@@ -91,12 +91,10 @@ export function BranchNode(props: NodeProps) {
     allParentNodes.includes(n.id)
   );
 
-  let allVariables: string[] = [];
-  let allVariableTypes: Record<string, string> = {};
+  let allExtraAttributes: Record<string, any>[] = [];
   allParentPageNodes.forEach((page) => {
-    const { variables, variableTypes } = getAllPageNodeVariables(page);
-    allVariables = allVariables.concat(variables);
-    allVariableTypes = { ...allVariableTypes, ...variableTypes };
+    const { extraAttributes } = getAllPageNodeVariables(page);
+    allExtraAttributes = allExtraAttributes.concat(extraAttributes);
   });
 
   async function addCondition() {
@@ -151,7 +149,7 @@ export function BranchNode(props: NodeProps) {
               <Accordion type="single" collapsible>
                 <AccordionItem value="item-1">
                   <AccordionTrigger>
-                    {"{i}"} {allVariables.length} variables available
+                    {"{i}"} {allExtraAttributes.length} variables available
                   </AccordionTrigger>
                   <AccordionContent className="flex flex-col gap-3">
                     <p>
@@ -159,9 +157,9 @@ export function BranchNode(props: NodeProps) {
                       also begin typing to insert a variable with autocomplete
                     </p>
                     <div className="py-4 rounded-md bg-primary/10 px-2 flex gap-2">
-                      {allVariables.map((value, i) => (
+                      {allExtraAttributes.map((e, i) => (
                         <Badge key={i} variant="lightsecondary">
-                          {value}
+                          {e.value}
                         </Badge>
                       ))}
                     </div>
@@ -173,9 +171,8 @@ export function BranchNode(props: NodeProps) {
                   key={c.id}
                   targetId={c.edgeId}
                   workflowId={params.id as string}
-                  variables={allVariables}
                   condition={c}
-                  variableTypes={allVariableTypes}
+                  extraAttributes={allExtraAttributes}
                 />
               ))}
             </div>
@@ -194,18 +191,21 @@ export function BranchNode(props: NodeProps) {
 const Condition = ({
   workflowId,
   targetId,
-  variables,
+  extraAttributes,
   condition,
-  variableTypes,
 }: {
   workflowId: string;
   targetId: string;
-  variables: string[];
-  variableTypes: Record<string, string>;
+  extraAttributes: Record<string, any>[];
   condition: Condition;
 }) => {
   const { setEdges, setNodes } = useReactFlow();
-  const variableFields = variables.map((v) => ({ label: v, value: v }));
+  const variableFields = extraAttributes.map((e) => ({
+    label: e.value,
+    value: e.value,
+  }));
+  const variables = extraAttributes.map((e) => e.value);
+  const [options, setOptions] = useState([]);
   const params = useParams();
   const operatorOptions = [
     "equals",
@@ -249,20 +249,29 @@ const Condition = ({
     .refine(
       (arg) => {
         const { lhs, rhs } = arg;
-        const type = variableTypes[lhs];
-        const getVarialbeTypes = (type: string) => {
-          switch (type) {
-            case "number":
-              return z.coerce.number();
-            case "boolean":
-              return z.boolean();
-            case "string":
-              return z.string().trim().min(1);
-            default:
-              return z.string().trim().min(1);
+        const lhsAttributes = extraAttributes.find((e) => e.value === lhs);
+        const getVarialbeTypes = () => {
+          if (lhsAttributes?.type) {
+            const type = lhsAttributes.type;
+            switch (type) {
+              case "number":
+                return z.coerce.number();
+              case "boolean":
+                return z.boolean();
+              case "string":
+                return z.string().trim().min(1);
+              default:
+                return z.string().trim().min(1);
+            }
+          } else if (lhsAttributes?.options) {
+            return z.string().refine((v) => lhsAttributes.options.includes(v), {
+              message: "Please select the value from the available options",
+            });
+          } else {
+            return z.string().trim().min(1);
           }
         };
-        const schema = getVarialbeTypes(type);
+        const schema = getVarialbeTypes();
         const validatedRhs = schema.safeParse(rhs);
         if (!validatedRhs.success) {
           return false;
@@ -286,8 +295,9 @@ const Condition = ({
     },
   });
 
-  const lhsValue = form.getValues("lhs");
   const lhsErrorMsg = form.formState.errors.lhs?.message;
+  const lhs = form.getValues("lhs");
+  const lhsAttributes = extraAttributes.find((e) => e.value === lhs);
 
   const saveConditionChanges: SubmitHandler<FormValues> = async ({
     lhs,
@@ -345,7 +355,12 @@ const Condition = ({
             </div>
             <div className="flex gap-4 items-center">
               <div className="w-full">
-                <SelectVariables variables={variableFields} lhs={lhsValue} />
+                <SelectVariables
+                  variables={variableFields}
+                  form={form}
+                  onFieldSelect={(options) => setOptions(options)}
+                  extraAttributes={extraAttributes}
+                />
                 {lhsErrorMsg && (
                   <p className="text-destructive text-sm font-medium">
                     {lhsErrorMsg}
@@ -382,14 +397,45 @@ const Condition = ({
             <div className="flex gap-4 items-center">
               <FormField
                 name="rhs"
-                render={({ field }) => (
-                  <FormItem className="w-full">
-                    <FormControl>
-                      <Input {...field} placeholder="Select output condition" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  if (options.length > 0) {
+                    return (
+                      <FormItem className="w-full">
+                        <FormControl>
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
+                            <SelectTrigger>
+                              <SelectValue
+                                placeholder={lhsAttributes?.placeholder}
+                              />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {options.map((op: string) => (
+                                <SelectItem key={op} value={op}>
+                                  {op}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }
+                  return (
+                    <FormItem className="w-full">
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder="Select output condition"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
               />
               <Button variant="ghost">
                 <Link className="h-4 w-4" />
@@ -413,13 +459,25 @@ const Condition = ({
 
 export function SelectVariables({
   variables,
-  lhs,
+  form,
+  onFieldSelect,
+  extraAttributes,
 }: {
   variables: {
     label: string;
     value: string;
   }[];
-  lhs: string;
+  form: UseFormReturn<
+    {
+      lhs: string;
+      rhs: string;
+      operator: any;
+    },
+    any,
+    undefined
+  >;
+  onFieldSelect: (options: any) => void;
+  extraAttributes: Record<string, any>[];
 }) {
   const [open, setOpen] = React.useState(false);
 
@@ -432,8 +490,10 @@ export function SelectVariables({
           aria-expanded={open}
           className="w-full justify-between"
         >
-          {lhs
-            ? variables.find((variable) => variable.value === lhs)?.label
+          {form.getValues("lhs")
+            ? variables.find(
+                (variable) => variable.value === form.getValues("lhs")
+              )?.label
             : "Select variable"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -454,6 +514,14 @@ export function SelectVariables({
                         value={variable.value}
                         onSelect={(e) => {
                           field.onChange(e);
+                          const attribute = extraAttributes.find(
+                            (attr) => attr.value === e
+                          );
+                          if (attribute?.options) {
+                            onFieldSelect(attribute.options);
+                          } else {
+                            onFieldSelect([]);
+                          }
                           setOpen(false);
                         }}
                       >

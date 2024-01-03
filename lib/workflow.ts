@@ -17,18 +17,11 @@ export const getAllParentNodesForNode = (
 };
 
 export const getAllPageNodeVariables = (pageNode: PageNode) => {
-  let variables: string[] = [];
-  let types: string[] = [];
-  let variableTypes: Record<string, string> = {};
+  let extraAttributes: Record<string, any>[] = [];
+
   pageNode.elements?.forEach((e) => {
-    const value = e.extraAttributes?.value;
-    const type = e.extraAttributes?.type;
-    if (value) {
-      variables.push(value);
-      variableTypes[value] = type;
-      types.push(type);
-    }
+    if (e.extraAttributes?.value) extraAttributes.push(e.extraAttributes);
   });
 
-  return { variables, types, variableTypes };
+  return { extraAttributes };
 };

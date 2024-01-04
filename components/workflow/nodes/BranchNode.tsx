@@ -267,6 +267,12 @@ const Condition = ({
             return z.string().refine((v) => lhsAttributes.options.includes(v), {
               message: "Please select the value from the available options",
             });
+          } else if (lhsAttributes?.checked) {
+            return z
+              .string()
+              .refine((v) => ["true", "false"].includes(v), {
+                message: "Please select the boolean true or false",
+              });
           } else {
             return z.string().trim().min(1);
           }
@@ -408,7 +414,11 @@ const Condition = ({
                           >
                             <SelectTrigger>
                               <SelectValue
-                                placeholder={lhsAttributes?.placeholder}
+                                placeholder={
+                                  lhsAttributes?.checked
+                                    ? "Select the boolean value"
+                                    : lhsAttributes?.placeholder
+                                }
                               />
                             </SelectTrigger>
                             <SelectContent>
@@ -519,6 +529,8 @@ export function SelectVariables({
                           );
                           if (attribute?.options) {
                             onFieldSelect(attribute.options);
+                          } else if (attribute?.checked) {
+                            onFieldSelect(["true", "false"]);
                           } else {
                             onFieldSelect([]);
                           }

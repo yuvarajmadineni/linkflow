@@ -6,6 +6,10 @@ import { Condition, PageNode, Workflow } from "@/lib/utils";
 import { ChevronLeft, Redo, Rocket, Undo, Verified } from "lucide-react";
 import { Edge, Node, ReactFlowProvider, useReactFlow } from "reactflow";
 import { EditWorkflow } from "./edit-workflow";
+import { useModal } from "@/hooks/use-modal-store";
+import { publishWorkflow } from "./_actions/publish-workflow";
+import { toast } from "../ui/use-toast";
+import { useState } from "react";
 
 export function WorkflowChanges({
   workflow,
@@ -30,6 +34,9 @@ export function WorkflowChanges({
   if (workflow.status === "archived") {
     variant = "suspend";
   }
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { onOpen } = useModal();
   return (
     <ReactFlowProvider>
       <section className="bg-gray-200 dark:bg-gray-700 py-2 px-4 w-full flex justify-between items-center">
@@ -49,7 +56,17 @@ export function WorkflowChanges({
             </div>
             <Button
               variant="secondary"
-              disabled={workflow.status === "published"}
+              disabled={workflow.status === "published" || isSubmitting}
+              onClick={async () => {
+                try {
+                  setIsSubmitting(true);
+                  await publishWorkflow(workflow.id);
+                  onOpen("publishworkflow", { workflow });
+                } catch (e) {
+                  toast({ title: "Failed to publish the workflow" });
+                }
+                setIsSubmitting(false);
+              }}
             >
               <Rocket className="h-5 w-5 mr-2" />
               Publish

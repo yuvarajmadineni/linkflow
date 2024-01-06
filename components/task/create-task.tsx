@@ -1,13 +1,12 @@
 "use client";
-import { GitBranch } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
-import { useModal } from "@/hooks/use-modal-store";
 
 export function CreateTask() {
-  const { onOpen } = useModal();
+  const router = useRouter();
   return (
-    <Button onClick={() => onOpen("createtaskpipeline")}>
-       New  Pipeline
+    <Button onClick={() => router.push("/dashboard/task/new")}>
+      New Pipeline
     </Button>
   );
 }

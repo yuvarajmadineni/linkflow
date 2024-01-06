@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 import { useModal } from "@/hooks/use-modal-store";
 import { ClipboardList } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export function EmptyTask() {
-  const { onOpen } = useModal();
+  const router = useRouter();
   return (
     <div className="h-full flex flex-col items-center justify-center">
       <Card className="w-[24rem] bg-secondary flex flex-col items-center text-center px-4 py-4 gap-4">
@@ -18,7 +19,7 @@ export function EmptyTask() {
           task automation tool
         </CardContent>
         <CardFooter>
-          <Button onClick={() => onOpen("createtaskpipeline")}>
+          <Button onClick={() => router.push("/dashboard/task/new")}>
             Create task pipeline
           </Button>
         </CardFooter>

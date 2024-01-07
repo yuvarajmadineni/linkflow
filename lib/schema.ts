@@ -133,6 +133,13 @@ export const condition = pgTable("condition", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+export const tasks = pgTable("task", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").references(() => users.id),
+  workflowId: uuid("workflow_id").references(() => workflows.id),
+  status: workflowStatusEnum("status").notNull(),
+});
+
 export const userRelations = relations(users, ({ one }) => ({
   organization: one(organization, {
     fields: [users.organizationId],

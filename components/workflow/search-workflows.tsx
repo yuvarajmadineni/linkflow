@@ -10,11 +10,18 @@ import {
   CommandItem,
 } from "../ui/command";
 import { Workflow, cn } from "@/lib/utils";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 
-export function SearchWorkflows({ workflows }: { workflows: Workflow[] }) {
+export function SearchWorkflows({
+  workflows,
+  value,
+  setValue,
+}: {
+  workflows: Workflow[];
+  value: string;
+  setValue: Dispatch<SetStateAction<string>>;
+}) {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("");
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

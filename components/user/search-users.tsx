@@ -10,11 +10,18 @@ import {
   CommandItem,
 } from "../ui/command";
 import { User, cn } from "@/lib/utils";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 
-export function SearchUsers({ users }: { users: User[] }) {
+export function SearchUsers({
+  users,
+  value,
+  setValue,
+}: {
+  users: User[];
+  value: string;
+  setValue: Dispatch<SetStateAction<string>>;
+}) {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("");
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

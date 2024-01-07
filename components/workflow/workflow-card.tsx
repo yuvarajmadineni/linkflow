@@ -6,11 +6,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Workflow, cn } from "@/lib/utils";
-import { Badge } from "../ui/badge";
-import { format, formatDistance } from "date-fns";
-import { Copy, MoreVertical, Navigation, Trash, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +14,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useModal } from "@/hooks/use-modal-store";
+import { Workflow, cn } from "@/lib/utils";
+import { formatDistance } from "date-fns";
+import { Copy, MoreVertical, Navigation, Trash, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Badge } from "../ui/badge";
 
 export function WorkflowCard({ workflow }: { workflow: Workflow }) {
   const router = useRouter();

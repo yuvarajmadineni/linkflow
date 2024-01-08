@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Group, User, Workflow } from "@/lib/utils";
+import { Group, Task, User, Workflow } from "@/lib/utils";
 
 export type ModalType =
   | "suspenduser"
@@ -12,12 +12,15 @@ export type ModalType =
   | "deleteworkflow"
   | "archiveworfklow"
   | "createtaskpipeline"
-  | "publishworkflow";
+  | "publishworkflow"
+  | "archivetask"
+  | "deletetask";
 
 interface ModalData {
   user?: User;
   group?: Group;
   workflow?: Workflow;
+  task?: Task;
 }
 interface ModalStore {
   type: ModalType | null;

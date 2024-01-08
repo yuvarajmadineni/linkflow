@@ -5,6 +5,7 @@ import {
   condition,
   groups,
   pageNode,
+  tasks,
   userToGroups,
   users,
   workflows,
@@ -22,6 +23,7 @@ export type Workflow = typeof workflows.$inferSelect;
 export type PageNode = typeof pageNode.$inferSelect;
 export type Condition = typeof condition.$inferSelect;
 export type BranchNode = typeof branchNode.$inferSelect;
+export type Task = typeof tasks.$inferSelect;
 
 export function getUserAvatar(email: string) {
   return `http://www.gravatar.com/avatar/${md5(email)}.jpg?d=retro`;

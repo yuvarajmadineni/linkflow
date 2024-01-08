@@ -7,6 +7,7 @@ import {
   groups,
   organization,
   pageNode,
+  tasks,
   userToGroups,
   users,
   workflows,
@@ -189,4 +190,12 @@ export const getWorkflowById = async (workflowId: string) => {
     pageNodes: workflow.pageNodes,
     conditions: branchNodeConditions,
   };
+};
+
+export const getAllTasks = async () => {
+  return await db
+    .select()
+    .from(tasks)
+    .innerJoin(workflows, eq(workflows.id, tasks.workflowId))
+    .innerJoin(users, eq(users.id, tasks.userId));
 };

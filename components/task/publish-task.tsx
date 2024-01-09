@@ -15,13 +15,16 @@ import { useState } from "react";
 import { createTask } from "./_actions/create-task";
 import { toast } from "../ui/use-toast";
 import { useRouter } from "next/navigation";
+import { saveTask } from "./_actions/save-task";
 
-export function PublishTask({
+export function SaveOrPublishTask({
   userId,
   workflowId,
+  taskId,
 }: {
   userId: string;
   workflowId: string;
+  taskId?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -36,10 +39,18 @@ export function PublishTask({
     }
     try {
       setSubmitting(true);
-      await createTask({ workflowId, userId, status: "published" });
-      setOpen(true);
+      if (!taskId) {
+        await createTask({ workflowId, userId, status: "published" });
+        setOpen(true);
+      } else {
+        await saveTask({ workflowId, userId, taskId });
+      }
     } catch (e) {
-      toast({ title: "Failed to publish the task", variant: "destructive" });
+      console.log("ee", e);
+      toast({
+        title: `Failed to ${taskId ? "save" : "pubish"} the task`,
+        variant: "destructive",
+      });
       console.error(e);
     } finally {
       setSubmitting(false);
@@ -50,7 +61,7 @@ export function PublishTask({
     <Dialog open={open}>
       <DialogTrigger asChild>
         <Button onClick={publishTask} disabled={submitting}>
-          Publish
+          {taskId ? "Save changes" : "Publish"}
         </Button>
       </DialogTrigger>
       <DialogContent className="space-y-4">

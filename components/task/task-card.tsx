@@ -85,7 +85,7 @@ export function TaskCard({
             <DropdownMenuContent>
               <DropdownMenuItem
                 className="gap-2 flex"
-                onClick={() => router.push(`/task/${task.id}`)}
+                onClick={() => router.push(`/dashboard/task/${task.id}`)}
               >
                 <Navigation className="h-4 w-4" />
                 <span className="text-sm">Go to task pipeline</span>

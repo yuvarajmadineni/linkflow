@@ -199,3 +199,7 @@ export const getAllTasks = async () => {
     .innerJoin(workflows, eq(workflows.id, tasks.workflowId))
     .innerJoin(users, eq(users.id, tasks.userId));
 };
+
+export const getTaskById = async (id: string) => {
+  return db.select().from(tasks).where(eq(tasks.id, id));
+};

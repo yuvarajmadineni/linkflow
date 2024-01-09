@@ -1,26 +1,32 @@
 "use client";
-import { PublishTask } from "@/components/task/publish-task";
+import { SaveOrPublishTask } from "@/components/task/publish-task";
 import { Badge } from "@/components/ui/badge";
 import { SearchUsers } from "@/components/user/search-users";
 import { SearchWorkflows } from "@/components/workflow/search-workflows";
-import { User, Workflow } from "@/lib/utils";
+import { Task, User, Workflow } from "@/lib/utils";
 import { ClipboardList } from "lucide-react";
 import { useState } from "react";
 
 export function Pipeline({
   users,
   workflows,
+  task,
 }: {
   users: User[];
   workflows: Workflow[];
+  task?: Task;
 }) {
-  const [user, setUser] = useState("");
-  const [workflow, setWorkflow] = useState("");
+  const [user, setUser] = useState(task?.userId || "");
+  const [workflow, setWorkflow] = useState(task?.workflowId || "");
   return (
     <>
       <div className="flex justify-between">
         <h3 className="text-3xl font-semibold">New Pipeline</h3>
-        <PublishTask userId={user} workflowId={workflow} />
+        <SaveOrPublishTask
+          userId={user}
+          workflowId={workflow}
+          taskId={task?.id}
+        />
       </div>
       <div className="flex justify-center items-center h-full flex-col">
         <div className="bg-secondary px-8 py-2 flex flex-col gap-2 rounded-lg items-center border-muted-foreground border">

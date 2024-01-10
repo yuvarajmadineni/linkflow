@@ -33,11 +33,19 @@ export const getOrganization = async (organizationId: string) => {
 };
 
 export const getUserProfile = async () => {
-  const { userId } = auth();
+  const userInfo = await currentUser();
 
-  const profile = await db.query.users.findFirst({
-    where: eq(users.userId, userId!),
+  let profile = await db.query.users.findFirst({
+    where: eq(users.email, userInfo?.emailAddresses?.[0].emailAddress!),
   });
+
+  if (profile?.userId !== userInfo?.id) {
+    [profile] = await db
+      .update(users)
+      .set({ userId: userInfo?.id })
+      .where(eq(users.id, profile?.id!))
+      .returning();
+  }
 
   return profile;
 };

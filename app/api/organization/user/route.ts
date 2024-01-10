@@ -17,7 +17,6 @@ export async function POST(req: Request) {
   const member = await db
     .insert(users)
     .values({
-      userId: id,
       email,
       role,
       status,

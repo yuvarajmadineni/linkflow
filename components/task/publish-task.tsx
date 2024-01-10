@@ -46,7 +46,6 @@ export function SaveOrPublishTask({
         await saveTask({ workflowId, userId, taskId });
       }
     } catch (e) {
-      console.log("ee", e);
       toast({
         title: `Failed to ${taskId ? "save" : "pubish"} the task`,
         variant: "destructive",

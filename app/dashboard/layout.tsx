@@ -1,7 +1,6 @@
 import Logo from "@/components/logo";
 import { ModeToggle } from "@/components/mode-toggle";
 import NavigationSidebar from "@/components/navigation-sidebar";
-import { UserAvatar } from "@/components/user/user-avatar";
 import { getUserProfile } from "@/lib/organization";
 import { UserButton } from "@clerk/nextjs";
 import { ChevronDownIcon } from "lucide-react";
@@ -25,7 +24,7 @@ export default async function DashboardLayout({
           <div>
             <h2 className="text-base font-semibold">{user?.fullName}</h2>
             <span className="text-sm text-muted-foreground font-normal">
-              Admin
+              {user?.role?.includes("admin") ? "Admin" : "Member"}
             </span>
           </div>
           <ChevronDownIcon className="text-muted-foreground h-5 w-5" />
@@ -33,7 +32,7 @@ export default async function DashboardLayout({
         </div>
       </div>
       <div className="hidden md:flex h-full text-foreground">
-        <NavigationSidebar />
+        <NavigationSidebar isAdmin={!!user?.role?.includes("admin")} />
         <div className="flex-1 bg-background">{children}</div>
       </div>
     </div>

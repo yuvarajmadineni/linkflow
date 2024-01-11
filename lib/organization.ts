@@ -211,3 +211,13 @@ export const getAllTasks = async () => {
 export const getTaskById = async (id: string) => {
   return db.select().from(tasks).where(eq(tasks.id, id));
 };
+
+export const getUserAssignedWorkflows = async () => {
+  const user = await getUserProfile();
+  return db
+    .select()
+    .from(tasks)
+    .innerJoin(workflows, eq(workflows.id, tasks.workflowId))
+    .innerJoin(users, eq(users.id, tasks.userId))
+    .where(eq(users.id, user?.id!));
+};

@@ -1,11 +1,16 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { EmptyWorkflow } from "../../../components/workflow/empty-worflow";
-import { getWorkflows } from "@/lib/organization";
+import { EmptyWorkflow } from "@/components/workflow/empty-worflow";
+import { getUserProfile, getWorkflows } from "@/lib/organization";
 import { WorkflowList } from "@/components/workflow/workflow-list";
 import { cn } from "@/lib/utils";
 import { CreateWorkflow } from "@/components/workflow/create-workflow";
+import { AssignedWorkflows } from "@/components/workflow/assigned-workflows";
 
 export default async function Workflow() {
+  const user = await getUserProfile();
+
+  if (!user?.role?.includes("admin")) return <AssignedWorkflows />;
+
   const workflows = await getWorkflows();
   const draftWorkflows = workflows.filter(
     (workflow) => workflow.status === "draft"

@@ -29,10 +29,11 @@ export async function savePageNodeProperties({
       .set({ name, elements, title, workflowId })
       .where(eq(pageNode.id, nodeId));
 
-    await tx
-      .update(condition)
-      .set({ lhs: "", rhs: "", operator: "" })
-      .where(notInArray(condition.lhs, variables));
+    if (variables.length)
+      await tx
+        .update(condition)
+        .set({ lhs: "", rhs: "", operator: "" })
+        .where(notInArray(condition.lhs, variables));
   });
 
   revalidatePath(`/workflow/${workflowId}/pagenode/${nodeId}`);

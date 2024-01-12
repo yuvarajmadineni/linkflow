@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import {
   CardTitle,
@@ -7,8 +8,10 @@ import {
   Card,
 } from "@/components/ui/card";
 import { Workflow } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 export default function WorkflowAction({ workflow }: { workflow: Workflow }) {
+  const router = useRouter();
   return (
     <div className="container mx-auto px-4  py-6 md:px-6">
       <header className="py-2">
@@ -23,7 +26,11 @@ export default function WorkflowAction({ workflow }: { workflow: Workflow }) {
             <p>{workflow.instructions}</p>
           </CardContent>
           <CardFooter className="justify-end">
-            <Button>Start</Button>
+            <Button
+              onClick={() => router.push(`/workflow/${workflow.id}/start`)}
+            >
+              Start
+            </Button>
           </CardFooter>
         </Card>
       </main>

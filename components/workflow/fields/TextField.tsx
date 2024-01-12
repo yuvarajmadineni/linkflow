@@ -196,21 +196,24 @@ function PropertiesComponent({
           )}
         />
         <FormField
+          control={form.control}
           name="type"
           render={({ field }) => (
             <FormItem>
-              <Select {...field} onValueChange={field.onChange}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Please select the type of variable" />
-                </SelectTrigger>
-                <SelectContent>
-                  {options?.map((option) => (
-                    <SelectItem key={option} value={option}>
-                      {option}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <FormControl>
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Please select the type of variable" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {options?.map((option) => (
+                      <SelectItem key={option} value={option}>
+                        {option}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}

@@ -136,7 +136,9 @@ export const condition = pgTable("condition", {
 export const tasks = pgTable("task", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id").references(() => users.id),
-  workflowId: uuid("workflow_id").references(() => workflows.id),
+  workflowId: uuid("workflow_id").references(() => workflows.id, {
+    onDelete: "cascade",
+  }),
   status: workflowStatusEnum("status").notNull(),
 });
 

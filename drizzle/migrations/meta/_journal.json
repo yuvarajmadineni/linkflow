@@ -274,6 +274,13 @@
       "when": 1704909935488,
       "tag": "0039_small_zzzax",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "5",
+      "when": 1705341312205,
+      "tag": "0040_cloudy_dragon_man",
+      "breakpoints": true
     }
   ]
 }

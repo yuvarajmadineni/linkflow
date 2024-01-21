@@ -25,6 +25,7 @@ export function PageNodeSelector({
         pageNode={pageNode}
         setPageNode={setPageNode}
         pageNodes={pageNodes}
+        conditions={conditions}
       />
     </Workflowpage>
   );

@@ -40,12 +40,9 @@ export function PageNodeBuilder({
 
   const onSubmit: SubmitHandler<any> = (values) => {
     if (!pageNode || !workflow) return;
-    const edge = workflow.buildConfig?.edges.find(
-      (e) => e.source === pageNode.id
-    );
-    const targetNode = workflow.buildConfig?.nodes.find(
-      (n) => n.id === edge?.target
-    );
+    const { nodes, edges } = workflow.buildConfig!;
+    const edge = edges.find((e) => e.source === pageNode.id);
+    const targetNode = nodes.find((n) => n.id === edge?.target);
 
     if (targetNode?.type === "pageNode") {
       const nextNode = pageNodes?.find((n) => n.id === targetNode.id);
@@ -54,7 +51,27 @@ export function PageNodeBuilder({
     }
 
     if (targetNode?.type === "branchNode") {
-      // TODO! get all the conditions for the branch node and evaluate and set the next node
+      const branchEdges = edges.filter((e) => e.source === targetNode.id);
+      for (let i = 0; i < branchEdges.length; i++) {
+        const branchEdge = branchEdges[i];
+        const condition = conditions?.find((c) => c.edgeId === branchEdge.id);
+
+        if (!condition || !condition.lhs) return;
+        const variables = Object.keys(values);
+        if (variables.includes(condition.lhs)) {
+          const variable = variables.find((v) => v === condition.lhs);
+          switch (condition.operator) {
+            case "equals":
+              if (String(values[variable!]) === condition.rhs) {
+                const node = nodes.find((n) => n.id === branchEdge.target);
+                const nextNode = pageNodes?.find((pn) => pn.id === node?.id);
+                if (!nextNode) return;
+                setPageNode?.(nextNode);
+                return;
+              }
+          }
+        }
+      }
     }
   };
 

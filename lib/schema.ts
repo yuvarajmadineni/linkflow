@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { $Type, relations } from "drizzle-orm";
 import {
   pgTable,
   text,
@@ -10,7 +10,7 @@ import {
   jsonb,
 } from "drizzle-orm/pg-core";
 import { Edge, Node } from "reactflow";
-import { getInitialWorkflow } from "./utils";
+import { Operator, getInitialWorkflow } from "./utils";
 import { ElementInstance } from "@/components/workflow/workflow-components";
 
 export const organization = pgTable("organization", {
@@ -127,7 +127,7 @@ export const condition = pgTable("condition", {
     .references(() => branchNode.id, { onDelete: "cascade" }),
   lhs: text("lhs"),
   rhs: text("rhs"),
-  operator: text("operator"),
+  operator: text("operator").$type<Operator>(),
   edgeId: uuid("edge_id").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -140,6 +140,8 @@ export const tasks = pgTable("task", {
     onDelete: "cascade",
   }),
   status: workflowStatusEnum("status").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 export const userRelations = relations(users, ({ one }) => ({

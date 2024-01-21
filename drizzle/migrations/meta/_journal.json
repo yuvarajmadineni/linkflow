@@ -281,6 +281,13 @@
       "when": 1705341312205,
       "tag": "0040_cloudy_dragon_man",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "5",
+      "when": 1705857356705,
+      "tag": "0041_nice_doctor_doom",
+      "breakpoints": true
     }
   ]
 }

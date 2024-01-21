@@ -11,6 +11,7 @@ import {
   workflows,
 } from "./schema";
 import { md5 } from "js-md5";
+import { z } from "zod";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -24,6 +25,15 @@ export type PageNode = typeof pageNode.$inferSelect;
 export type Condition = typeof condition.$inferSelect;
 export type BranchNode = typeof branchNode.$inferSelect;
 export type Task = typeof tasks.$inferSelect;
+export type Operator =
+  | "equals"
+  | "not equals"
+  | "greater than"
+  | "less than"
+  | "greater than or equals to"
+  | "less than or equals to"
+  | "starts with"
+  | "";
 
 export function getUserAvatar(email: string) {
   return `http://www.gravatar.com/avatar/${md5(email)}.jpg?d=retro`;
